@@ -1,0 +1,189 @@
+/*!
+ ****************************************
+ * CSS Hex Code shortcuts
+ * Graphite:#253746  	RGB 37 55 70
+ * Teal:#00778b   		RGB 0 119 139
+ * Green:#7dba00   		RGB 132 189 0
+ * White:#FFFFFF
+ * Black:#000000
+ ****************************************
+*/
+
+#landingpage {
+	background-color: #FFFFFF
+}
+
+#toPlot{
+	background-color: #253746; 
+	color: #FFFFFF;
+}
+
+#backone{
+	background-color: #00778b; 
+	color: #FFFFFF
+}
+
+#resetlocus{
+	background-color: #7dba00; 
+	color: #000000
+}
+
+#upone{
+	background-color: #00778b; 
+	color: #FFFFFF
+}
+
+#save2df{
+	background-color: #253746; 
+	color: #FFFFFF
+}
+
+#clearFinal{
+	background-color: #253746; 
+	color: #FFFFFF
+}
+
+#saveDT{
+	color: #7dba00;
+}
+
+#saveOGDF{
+	color: #7dba00
+}
+
+#saveAlleleSummary{
+	color: #7dba00
+}
+
+#saveLocusSummary{
+	color: #7dba00
+}
+
+#saveDTalt{
+	color: #7dba00
+}
+
+#strider_ext{
+	background-color: #253746; 
+	color: #FFFFFF
+}
+
+#saveSTRidER{
+	background-color: #253746; 
+	color: #FFFFFF
+}
+
+/*semi-collapse sidebar to width of icon*/
+/*.sidebar-collapse .left-side, .sidebar-collapse .main-sidebar{ 
+ transform: translate(0,0);
+ width: 40px;
+}*/
+
+/* logo */
+.skin-blue .main-header .logo {
+    background-color: #253746;
+}
+
+/* logo when hovered */
+.skin-blue .main-header .logo:hover {
+    background-color: #253746;
+}
+
+/* navbar (rest of the header) */
+.skin-blue .main-header .navbar {
+    background-color: #253746;
+}
+
+/* main sidebar */
+.skin-blue .main-sidebar {
+    background-color: #253746;
+}
+
+/* active selected tab in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+	background-color: #00778b;
+}
+
+/* other links in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a{
+	background-color: #253746;
+	color: #FFFFFF;
+}
+
+/* other links in the sidebarmenu when hovered */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+	background-color: #7dba00;
+	color: #000000;
+}
+
+/* toggle button when hovered  */                    
+.skin-blue .main-header .navbar .sidebar-toggle:hover{
+	background-color: #7dba00;
+	color: #000000;
+
+}
+
+/* body */
+/*.content-wrapper, .right-side {
+    background-color: #7da2d1;
+}*/
+
+.box.box-solid.box-primary>.box-header {
+	color:#fff;
+	background:#7dba00;
+}
+
+div.box-header {               
+	text-align: center;
+	padding-bottom: 2px;
+	padding-top: 2px;
+}
+
+body {
+	font-family: Times New Roman;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+IMG.displayed {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+	vertical-align: middle;	
+}
+
+#social-media-icons{
+	text-align: center;
+}
+
+#secondary-footer-docs{
+	text-align: center;
+	color: #ffffff;
+}
+
+#footers{
+	padding: 150px 0px 0px 0px;
+	bottom: 120px;
+    width: 100%; 
+    /* Height of the footer*/  
+    height: 40px; 
+}
+
+/*Progress bar for loci*/
+.small-box { 
+	background-color: #253746 !important; 
+	color: #FFFFFF !important;
+}
+
+.thiccHr{
+	border-top: 3px solid #7dba00;
+}
+
+.small_icon_test{ 
+	font-size: 30px !important;
+	color: #FFFFFF !important;
+	padding: 0px 30px 0px 0px;
+}

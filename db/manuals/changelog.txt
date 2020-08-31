@@ -1,0 +1,46 @@
+v0.1.3
+
+
+v0.1.4
+	-Added STRidER tab
+	-STRidER input fields
+	-Added CV to RAP batch output
+	-Fixed bug affecting SNP loci with secondary SNP variant in matching sequence
+	
+	
+	
+	
+	
+	NEED TO DO
+	Notes for v3 improvement
+		DYS19 Changed motif matching to forward strand
+		DYS389II 5x fixed previously by removing DYS389I bleedthrough (i.e., negative alleles)
+		mh16-MC1RB	60x TGCTGGAGGC --> TGCTGGAGGCYGGT
+		mh16-MC1RC	15x TGTCGTCTTC --> TGTCGTCTTCAGCA
+		rs1800407	Adjusted offset from 69-->67
+		
+		Check negative loci filtering of actual deletions in SNP loci.
+
+	UI mess
+	LB- & SB-based bar plot [Note: Need to plot allele length with allele name overlay; LB only][All plots; really would like to have bounds of each locus == allele range] [Filter out DYS389II/I artifacts from v3]
+	
+	
+	Pop-level
+Allele frequencies
+Forensic parameters
+Sample-level
+Match statistics
+Kinship
+Database import
+Expanded haplotype database (consistent with ForenSeq UAS & RR+Flank)
+Stutter modeling? Autoflag Stutter? Stutter Calcs? Stutter Filtering?
+Custom configs
+Read merging
+More ML work on haplotype LR
+Private mutation nomenclature creation
+Alignment?
+IGV launcher
+User accounts with saved defaults
+Anything remotely resembling stutter [partially ready would be better if it were more dynamic]
+Alleles not in a stutter flag [potential trace or contaminate]
+Called stutter in Y-STRs need correcting (i.e., include max RAP to tag stutter calls)

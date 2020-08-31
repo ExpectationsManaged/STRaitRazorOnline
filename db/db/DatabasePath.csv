@@ -1,0 +1,11 @@
+App,Path
+STRaitRazorProgram,str8rzr
+Analysis,STRaitRazorAnalysisConfig.csv
+Haplotypes,HaplotypeDatabase.csv
+ResultsParent,AnalysisOutput/
+ResultsAnalysisChild,STRaitRazoR_AnalysisResults
+Diplotypes,DiplotypeDatabase.csv
+ResultsStutterChild,STRaitRazoR_StutterResults
+Results_str8rzrChild,STRaitRazoR_FASTQ2TXT_Results
+str8rzrConfig,STRaitRazorConfig.csv
+DatabasePath,DatabasePath.csv
