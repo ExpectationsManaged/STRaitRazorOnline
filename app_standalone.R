@@ -1,20 +1,19 @@
 ##############################################
 #
 #
-#Version ID: 0.1.4
+#Version ID: 0.1.5
 #
 #
 ##############################################
 
 
+library(data.table)
 library(tcltk)
 library(shinydashboard)
 library(rhandsontable)
 library(tidyverse)
 library(shiny)
-library(readxl)
 library(Biostrings)
-
 
 
 
@@ -248,11 +247,15 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       select(-(UniqueHaps), -(TotalReads), -(HaplotypeCount), -(HaplotypeCountRC)) %>% 
       select(1:4, 6:8, 5)
     
-    
     #Set thresholds
     Thresholds <- select(Config, Locus, HBT, RDT, SBT, RAPT)
     STRaitRazorIO <- left_join(STRaitRazorIO, Thresholds, by = "Locus")
     rm(Thresholds)
+    
+    #Create data frame for sub-threshold reads
+    subThresh <- STRaitRazorIO %>% 
+      filter(HaplotypeSum < RDT, SBC <= SBT, RAP < RAPT) %>% 
+      select(-(RDT), -(SBT), -(RAPT), -(SBC), -(HBT))
     
     #Apply thresholds and rank haplotype abundance
     STRaitRazorIO <- filter(STRaitRazorIO, HaplotypeSum >= RDT, SBC >= SBT, RAP >= RAPT) %>% 
@@ -278,6 +281,7 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       write_tsv(as.data.frame(STRaitRazorIO), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
       write_tsv(as.data.frame(AlleleSummary), paste0(OutputPath, "/", SampleName, "_AlleleSummary.tsv"))
       write_tsv(as.data.frame(LocusSummary), paste0(OutputPath, "/", SampleName, "_LocusSummary.tsv"))
+      write_tsv(as.data.frame(subThresh), paste0(OutputPath, "/", SampleName, "_subThresh.tsv"))
       
       #Return variables
       return(list(STRaitRazorIO, AlleleSummary, LocusSummary, SampleName, OutputPath))
@@ -342,6 +346,7 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       write_tsv(as.data.frame(STRaitRazorIO), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
       write_tsv(as.data.frame(AlleleSummary), paste0(OutputPath, "/", SampleName, "_AlleleSummary.tsv"))
       write_tsv(as.data.frame(LocusSummary), paste0(OutputPath, "/", SampleName, "_LocusSummary.tsv"))
+      write_tsv(as.data.frame(subThresh), paste0(OutputPath, "/", SampleName, "_subThresh.tsv"))
       
       #Return variables
       return(list(STRaitRazorIO, AlleleSummary, LocusSummary, SampleName, OutputPath))                          
@@ -534,7 +539,123 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
   return(list(PL_AlleleDepth, PL_LocusDepth, PL_HaplotypeDepth, PL_HaplotypeRAP, PL_HaplotypeHB, PL_HaplotypeSB))
 }
 
+saveSeqs <- function(df){
+  write_tsv(select(df, -Locus), paste0("data/AnalysisOutput/STRidER/STRidER_Data_File_", unique(df$Locus),".tsv"))
+  return(df)
+}
 
+STRidER_formatting <- function(longformData, Kit, DBPath){
+  
+  
+  #Identify paths and read in database variables
+  DatabasePaths <- read_csv(file.path("db", "db", DBPath))
+  Config <- read_csv(file.path("db", "db", DatabasePaths[[2, 2]])) %>% 
+    filter(Kitid == Kit)
+  
+  longGTDF <- read_tsv(longformData)
+  
+  longGTDF <- left_join(longGTDF, select(Config, Locus, STRidER_Up))
+  
+  
+  longGTDF$Allele <- ifelse(longGTDF$Locus == "Amelogenin", ifelse(longGTDF$Allele == 0, "X", ifelse(longGTDF$Allele == 1, "Y", ifelse(longGTDF$Allele == 6, "Y", longGTDF$Allele))), longGTDF$Allele)
+  
+  
+  #Filter for the called alleles from the STRidER designated loci for sequence saving
+  STRidERSeqUp <- longGTDF_UL %>% 
+    filter(AutoCall =="a", STRidER_Up == 1) %>% 
+    select(SampleName, Locus, Allele, Haplotype) %>% 
+    mutate(fastaHeader = paste0(">", SampleName, "_", Locus, "_", Allele)) %>% 
+    select(Locus, fastaHeader, Haplotype) %>% 
+    arrange(Locus, fastaHeader)
+  
+  #Save sequnece files grouped by locus
+  STRidERSeqUp %>% 
+    group_by(Locus) %>% 
+    do(saveSeqs(.))
+  
+  
+  #Filter uncalled alleles and create id's for joins
+  longGTDF <- longGTDF %>% 
+    filter(AutoCall =="a", STRidER_Up == 1) %>% 
+    select(SampleName, Locus, Allele) %>% 
+    group_by(SampleName, Locus) %>% 
+    mutate(AlleleRank = rank(Allele, ties.method = "first"), ID = paste0(SampleName,"_", Locus), ID2 = paste0(Locus, "_", AlleleRank)) %>% 
+    arrange(SampleName, Locus, AlleleRank) %>% 
+    ungroup()
+  
+  
+  #Filter for STRidER Loci
+  Config <- Config %>% 
+    filter(STRidER_Up == 1)
+  
+  
+  #Pull list of loci typed
+  Loci <- unique(Config$Locus)
+  
+  
+  #Duplicate loci for genotype table
+  Loci <- append(Loci, Loci) %>% 
+    sort() %>%
+    as.data.frame()
+  
+  names(Loci) <- c("Locus")
+  
+  
+  #Create id's for joining
+  Loci <- Loci %>%
+    mutate(Order = 1:nrow(Loci)) %>% 
+    group_by(Locus) %>% 
+    mutate(Count = row_number()) %>% 
+    mutate(ID2 = paste0(Locus, "_", Count)) %>%
+    ungroup()
+  
+  longGTDF <- left_join(longGTDF, select(Loci, ID2, Order), by = "ID2")
+  
+  longGTDF <- longGTDF %>% 
+    mutate(ID3 = paste0(SampleName, "_", ID2), SisterAlleleID = ID3)
+  
+  
+  #Make a list of all locus-sample combinations
+  SampleList <- as.data.frame(rep(unique(longGTDF$SampleName),nrow(Loci))) 
+  
+  names(SampleList) <- "SampleName"
+  
+  SampleList <- SampleList %>% 
+    arrange(SampleName) %>% 
+    group_by(SampleName) %>% 
+    mutate(Order = row_number()) %>% 
+    ungroup() 
+  
+  SampleList <- left_join(SampleList, select(Loci, Order, Locus), by = "Order") %>% 
+    group_by(SampleName, Locus) %>% 
+    mutate(Count = row_number(), ID3 = paste0(SampleName, "_", Locus, "_", Count)) %>% 
+    ungroup()
+  
+  antiAlleles  <- anti_join(SampleList, longGTDF, by = "ID3") %>% 
+    mutate(SisterAlleleID = if_else(Count == 1, "", paste0(SampleName, "_", Locus, "_1")))
+  
+  antiAlleles <- left_join(antiAlleles, select(longGTDF, SisterAlleleID, Allele), by = "SisterAlleleID")
+  
+  longGTDF_XX<- bind_rows(longGTDF, select(antiAlleles, SampleName, Locus, Allele, Order, ID3)) %>% arrange(SampleName, Order)
+  
+  
+  #Create and merge header and wide form
+  headerButNotHeader <- Loci %>% 
+    mutate(SampleName = "SampleName") %>% 
+    select(SampleName, Locus, Order) %>% 
+    pivot_wider(names_from = Order, values_from = Locus)
+  
+  STRidER_Wide <- longGTDF_XX %>% 
+    select(SampleName, Order, Allele) %>% 
+    pivot_wider(names_from = Order, values_from = Allele)
+  
+  STRidER_Wide <- rbindlist(list(headerButNotHeader, STRidER_Wide), fill = TRUE)
+  
+  colnames(STRidER_Wide)[1] <- "X1"
+  
+  return(STRidER_Wide)
+  
+}
 
 
 ##############################################
@@ -984,7 +1105,7 @@ ui <- dashboardPage(
       
       
       ##############################################
-      #Final allele calls page                
+      #STRidER Upload page                
       tabItem(tabName = "strider",
               fluidRow(
                   box(width = 4,
@@ -1001,8 +1122,9 @@ ui <- dashboardPage(
                   ),
                   box(width = 4,
                     div(
-                      style = "display: inline-block; padding: 0 0 0 0px", actionButton("strider_ext", "Upload Data Set")
-                    )
+                      style = "display: inline-block; padding: 0 0 0 0px", actionButton("strider_ext", "Upload Data Set***")
+                    ),
+                    tags$p("*** Data set needs to be a long-form data table. See manual for more details.")
                   )
               ),
               
@@ -1269,7 +1391,7 @@ ui <- dashboardPage(
               )
       ),
       ##############################################
-      #Note to Beta Testers page       
+      #Bugs reported page     
       tabItem(tabName = "bugs",
               fluidRow(
                 box(width = 10,
@@ -1296,7 +1418,7 @@ ui <- dashboardPage(
       
       
       ##############################################
-      #Note to Beta Testers page 
+      #Coming soon page
       tabItem(tabName = "notnow",
               fluidRow(
                 box(width = 10,
@@ -1319,15 +1441,13 @@ ui <- dashboardPage(
                     tags$br(),
                     tags$p("6. Import haplotype frequency database."),
                     tags$br(),
-                    tags$p("7. Progress Bar 4 Batch Mode."),
+                    tags$p("7. Clearer annotation of versions."),
                     tags$br(),
                     tags$p("8. Merge read 1 and read 2..."),
                     tags$br(),
-                    tags$p("9. Process batch data for export to STRidER."),
+                    tags$p("9. Accessibility; add alt text to plots, source data, etc."),
                     tags$br(),
-                    tags$p("10. Accessibility; add alt text to plots, source data, etc."),
-                    tags$br(),
-                    tags$p("11. Custom configs for STRaitRazorOnline."),
+                    tags$p("10. Custom configs for STRaitRazorOnline."),
                     tags$br(),
                     tags$i("Good luck, future me, in getting these implemented before launch.")
                 )
@@ -1336,7 +1456,7 @@ ui <- dashboardPage(
       
       
       ##############################################
-      #Note to Beta Testers page 
+      #Settings page
       tabItem(tabName = "settings",
               fluidRow(
                 box(width = 12,
@@ -1372,7 +1492,7 @@ server <- function(input, output, session) {
   final <- reactiveValues(df = NULL)
   
   #Initialize default locus and locus nav buttons
-  values <- reactiveValues(lcount = 0, fti = -1)
+  values <- reactiveValues(lcount = 0, fti = -1, fileType = 0)
   
   #Initialize db
   db <- reactiveValues()
@@ -1435,8 +1555,7 @@ server <- function(input, output, session) {
   ##############################################
   #Compile list of loci for drop-down menu             
   output$loci <- renderUI({
-    shiny::req(rt())
-    
+
     if(input$cLocus){
       selectInput("loci", label = h4("Choose Locus", style = "font-family: Times New Roman"), choices = rt()$Locus)
     }else{}
@@ -1525,7 +1644,14 @@ server <- function(input, output, session) {
   ##############################################
   #Display profile progress
   output$progressBox <- renderValueBox({
-    shiny::req(rt())
+    
+    if (values$fileType <= 0){return(
+      valueBox(
+        paste0(round(0*100, digits = 1), "%"), "Progress", icon = NULL,
+        color = "black"
+      )
+      
+    )}
     
     maxLcount <- length(rt()$Locus)
     valueBox(
@@ -1538,7 +1664,12 @@ server <- function(input, output, session) {
   ##############################################
   #Display passing loci count
   output$primaryBoxCount <- renderValueBox({
-    shiny::req(DF1())
+    if (values$fileType <= 0){return(
+      valueBox(
+        round(0, digits = 0), "Pass QC", icon = icon("thumbs-up", class = "small_icon_test")
+      )
+      
+    )}
     
     if(input$expertCall){
       DF <- final$df
@@ -1555,7 +1686,11 @@ server <- function(input, output, session) {
   ##############################################
   #Display warning loci count
   output$warningBoxCount <- renderValueBox({
-    shiny::req(DF1())
+    if (values$fileType <= 0){return(
+      valueBox(
+        round(0, digits = 0), "Flagged", icon = icon("exclamation", class = "small_icon_test")
+      )
+    )}
     
     if(input$expertCall){
       DF <- DF1()
@@ -1833,7 +1968,7 @@ server <- function(input, output, session) {
     
     #Choose allsequences files and process DFs
     allseqs1 <- {
-#browser()
+
       if(values$fileType == 1){
 
         #Establish parameters
@@ -2213,6 +2348,8 @@ server <- function(input, output, session) {
   #Create box and insert ggplot
   output$plotFullUI <- renderUI({
     
+    if (values$fileType <= 0){return(invisible())}
+    
     status <- DF2()[1, 13]
 
     box(title = h4(uiOutput('TargetLocus'), style = "font-family: Times New Roman"), solidHeader = TRUE, status = status, plotOutput("plotFull"))
@@ -2243,8 +2380,9 @@ server <- function(input, output, session) {
   ##############################################
   #Output table
   output$hot <- renderRHandsontable({
-    shiny::req(DF2())
 
+    if (values$fileType <= 0){return(invisible())}
+    
     DF <- DF2()
     
     DF <- DF %>% 
@@ -2309,6 +2447,8 @@ server <- function(input, output, session) {
   #Plot all STR loci 
   output$allLociplot <- renderPlot({
 
+    if (values$fileType <= 0){return(invisible())}
+    
     #Load the data frame  
     DF <- DF1()
     
@@ -2323,7 +2463,7 @@ server <- function(input, output, session) {
       
     #Enrich for STRs and filter out noise
     DF <- left_join(DF, Type) %>% 
-      filter(Marker_Type == "STR") %>% 
+      filter(Marker_Type %in% c("STR","INDEL")) %>% 
       filter(HaplotypeSum >= input$rdt) %>% 
       select(-(Marker_Type))
       
@@ -2343,6 +2483,8 @@ server <- function(input, output, session) {
   #Plot all STR loci 
   output$finalLociplot <- renderPlot({
     
+    if (values$fileType <= 0){return(invisible())}
+    
     #Import data frame
     DF <- final$df %>% 
       mutate(HapLen = nchar(final$df$Haplotype))
@@ -2358,7 +2500,7 @@ server <- function(input, output, session) {
     
     #Enrich for STRs and filter out noise
     DF <- left_join(DF, Type) %>% 
-      filter(Marker_Type == "STR") %>% 
+      filter(Marker_Type %in% c("STR","INDEL")) %>% 
       filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25) %>% 
       filter(HaplotypeSum >= input$rdtFinal) %>% 
       select(-(Marker_Type))
@@ -2441,30 +2583,31 @@ server <- function(input, output, session) {
   ##############################################
   #Load external file
   observeEvent(input$strider_ext, {
-
-   values$strider_df <- read_tsv(file.choose())
-
+   
+    sr_db <- as.data.frame(db$dbPath)
+    
+    values$strider_df <- STRidER_formatting(file.choose(), Kit = input$kits, sr_db[[10, 2]])
+    
   })
   
   
   ##############################################
   #Render STRidER table prior to upload
   output$strider_table <- renderTable({
-
-    df <- data.frame(SampleID = paste0("# ", input$popdesc))
-    df <- rbind(df, paste0("# ", input$name, ", ", input$email))
-    df <- rbind(df, paste0("# ", input$metadata))
-    values$strider_fdf <- df
-    df
-    # df <- merge(df, values$strider_df, all = TRUE)
+    
+    df <- data.frame(X1 = paste0("# ", input$popdesc))
+    df <- base::rbind(df, paste0("# submitted by ", input$name, ", ", input$email))
+    df <- base::rbind(df, paste0("# ", input$metadata))
+    values$strider_fdf <- bind_rows(df, values$strider_df)
+    
   })
   
   
   ##############################################
-  #Load external file
+  #Save STRidER external file
   observeEvent(input$saveSTRidER, {
     
-    write_tsv(values$strider_fdf, paste0("data/AnalysisOutput/STRidER/STRidER_Data_File", format(Sys.time(), "%d-%b-%Y %H.%M"), ".tsv"), col_names = FALSE)
+    write_tsv(values$strider_fdf, paste0("data/AnalysisOutput/STRidER/STRidER_Data_File", format(Sys.time(), "%d-%b-%Y %H.%M"), ".tsv"), col_names = FALSE, na = "")
 
   })
   

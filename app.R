@@ -1,17 +1,17 @@
 ##############################################
 #
 #
-#Version ID: 0.1.3
+#Version ID: 0.1.5
 #
 #
 ##############################################
 
-
+library(data.table)
 library(shinydashboard)
 library(rhandsontable)
 library(tidyverse)
 library(shiny)
-library(readxl)
+library(Biostrings)
 
 
 
@@ -633,9 +633,9 @@ ui <- dashboardPage(
                     align = "center",
                     box(
                       id = "pathchoosing",
-                      title = h3("Select database path", style = "font-family: Times New Roman"), 
+                      title = h3("First Select Database Path", style = "font-family: Times New Roman"), 
                       width = 4,
-                      actionButton("loaddb", "Choose Directory")
+                      actionButton("loaddb", "Load Database")
                     )
                   )
                 ),
@@ -649,7 +649,7 @@ ui <- dashboardPage(
                     align = "center",
                   
                     tabBox(
-                      title = h3("Upload Sample", style = "font-family: Times New Roman"),
+                      title = h3("Then Upload Sample", style = "font-family: Times New Roman"),
                       width = 6,
                       id = "fileselect",
                       tabPanel("Single", 
@@ -1241,13 +1241,12 @@ ui <- dashboardPage(
                 box(width = 10,
                     h1("Known Bugs"),
                     tags$br(),
-                    # tags$i("The following issues are known to occur in this iteration."),
-                    # tags$br(),
-                    # img(src = "I_dont_know.gif"),
-                    tags$i("This version knows no bugs!!!!!!!!!"),
+                    tags$i("The following issues are known to occur in this iteration."),
+                    tags$br(),
+                    img(src = "I_dont_know.gif"),
                     tags$br(),
                     tags$br(),
-                    tags$p("1. "),
+                    tags$p("1. Prior to loading database and sample, a few UI elements throw errors. Attempts to fix significantly slowed online version (only in shinyapps.io not locally...). So, these blemishes remain to add character..."),
                     tags$br(),
                     tags$p("2. "),
                     tags$br(),
@@ -1262,7 +1261,7 @@ ui <- dashboardPage(
       
       
       ##############################################
-      #Note to Beta Testers page 
+      #Coming soon page
       tabItem(tabName = "notnow",
               fluidRow(
                 box(width = 10,
@@ -1285,11 +1284,13 @@ ui <- dashboardPage(
                     tags$br(),
                     tags$p("6. Import haplotype frequency database."),
                     tags$br(),
-                    tags$p("7. Progress Bar 4 Batch Mode."),
+                    tags$p("7. Clearer annotation of versions."),
                     tags$br(),
                     tags$p("8. Merge read 1 and read 2..."),
                     tags$br(),
-                    tags$p("9. Process batch data for export to STRidER."),
+                    tags$p("9. Accessibility; add alt text to plots, source data, etc."),
+                    tags$br(),
+                    tags$p("10. Custom configs for STRaitRazorOnline."),
                     tags$br(),
                     tags$i("Good luck, future me, in getting these implemented before launch.")
                 )
@@ -1298,7 +1299,7 @@ ui <- dashboardPage(
       
       
       ##############################################
-      #Note to Beta Testers page 
+      #Settings page
       tabItem(tabName = "settings",
               fluidRow(
                 box(width = 12,
@@ -1307,12 +1308,7 @@ ui <- dashboardPage(
                     div(style = "display: inline-block; padding: 0 10px 0 10px", numericInput("gRDT", "Global Read Depth Thresh", 10, 1, NA)),
                     div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("recur", "Recursive Directories", value = TRUE)),
                     div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("batchCall", "AutoCall Alleles (Batch Mode)", value = FALSE)),
-                    div(style = "display: inline-block; padding: 0 0 0 0", checkboxInput("expertCall", "AutoPass Loci", value = FALSE)),
-                    div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("savePlots", "Save Bar Plots")),
-                    conditionalPanel(
-                      condition = "input.savePlots==1",
-                      div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("sepByType", "Separate Plots by Marker Type", value = TRUE))
-                    )
+                    div(style = "display: inline-block; padding: 0 0 0 0", checkboxInput("expertCall", "AutoPass Loci", value = FALSE))
                 )
               )
       )
@@ -1917,7 +1913,7 @@ server <- function(input, output, session) {
       
     #Enrich for STRs and filter out noise
     DF <- left_join(DF, Type) %>% 
-      filter(Marker_Type == "STR") %>% 
+      filter(Marker_Type %in% c("STR","INDEL")) %>% 
       filter(HaplotypeSum >= input$rdt) %>% 
       select(-(Marker_Type))
       
@@ -1952,7 +1948,7 @@ server <- function(input, output, session) {
     
     #Enrich for STRs and filter out noise
     DF <- left_join(DF, Type) %>% 
-      filter(Marker_Type == "STR") %>% 
+      filter(Marker_Type %in% c("STR","INDEL")) %>% 
       filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25) %>% 
       filter(HaplotypeSum >= input$rdtFinal) %>% 
       select(-(Marker_Type))
