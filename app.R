@@ -1,10 +1,11 @@
 ##############################################
 #
 #
-#Version ID: 0.1.5
+#Version ID: 0.1.51
 #
 #
 ##############################################
+
 
 library(data.table)
 library(shinydashboard)
@@ -50,7 +51,7 @@ STRaitRazorv3<- function(ActiveFASTQ, SampleName, numcores = 6, Kit = c("decodeY
   #Call STRaitRazor    
   if (.Platform$OS.type == "windows"){
     if (fileType == ".fastq"){
-      STR8RZR_Call <- paste0("bin\\str8rzr -c ", v3_Config, " -p ", numcores, " ", ActiveFASTQ)
+      STR8RZR_Call <- paste0("bin\\str8rzr -c  db\\configs\\", v3_Config, " -p ", numcores, " ", ActiveFASTQ)
       STRaitRazorIO <- read.table(text = shell(STR8RZR_Call, intern = TRUE), sep = "\t")
     }else{
       TEMP_STR8RZROutput <- shell(paste0('bin\\7z.exe x -so ', ActiveFASTQ, ' | bin\\str8rzr -c db\\configs\\', v3_Config,' -p ', numcores), intern = TRUE)
@@ -60,7 +61,7 @@ STRaitRazorv3<- function(ActiveFASTQ, SampleName, numcores = 6, Kit = c("decodeY
   
   if (.Platform$OS.type == "unix"){
     if (fileType == ".fastq"){
-      STR8RZR_Call <- paste0("./bin/str8rzr -c ", v3_Config, " -p ", numcores, " ", ActiveFASTQ)
+      STR8RZR_Call <- paste0("./bin/str8rzr -c db/configs/", v3_Config, " -p ", numcores, " ", ActiveFASTQ)
       STRaitRazorIO <- read.table(text = system(STR8RZR_Call, intern = TRUE), sep = "\t")
     }else{
       TEMP_STR8RZROutput <- system(paste0('zcat ', ActiveFASTQ, ' | ./bin/str8rzr -c db/configs/', v3_Config,' -p ', numcores), intern = TRUE)
