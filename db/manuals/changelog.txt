@@ -1,46 +1,33 @@
-v0.1.3
+v 0.1.2: 07/20/2020
+	-Launch Day!!!!!!!!!!!
 
+v 0.1.3: 08/19/2020
+	-minor bug fixes
 
-v0.1.4
-	-Added STRidER tab
+v 0.1.4: 09/01/2020
+	-added STRidER tab
 	-STRidER input fields
-	-Added CV to RAP batch output
-	-Fixed bug affecting SNP loci with secondary SNP variant in matching sequence
-	
-	
-	
-	
-	
-	NEED TO DO
-	Notes for v3 improvement
-		DYS19 Changed motif matching to forward strand
-		DYS389II 5x fixed previously by removing DYS389I bleedthrough (i.e., negative alleles)
-		mh16-MC1RB	60x TGCTGGAGGC --> TGCTGGAGGCYGGT
-		mh16-MC1RC	15x TGTCGTCTTC --> TGTCGTCTTCAGCA
-		rs1800407	Adjusted offset from 69-->67
-		
-		Check negative loci filtering of actual deletions in SNP loci.
+	-added CV to RAP batch output
+	-fixed bug affecting SNP loci with secondary SNP variant in matching sequence
+	-added progress bar for batch mode or file processing
 
-	UI mess
-	LB- & SB-based bar plot [Note: Need to plot allele length with allele name overlay; LB only][All plots; really would like to have bounds of each locus == allele range] [Filter out DYS389II/I artifacts from v3]
+v 0.1.5: 09/17/2020
+	-added data.table package to address STRidER appending issue
+	-finalized STRidER functions for multi-sample processing
+	-cleaned up in script comments regarding page titles
+	-removed readxl package (not used in current implementation)
+-added code to clean up UI on start-up
+	-Launched Windows Electron application
+	-added function subThresh for saving data frame of reads >= GlobalThreshold, but < locus threshold
+	-added Indels (e.g., Amelogenin) to All Loci and Final Profile ggplots
+
+v 0.1.51 (app_online.R only): 09/18/2020
+	-Corrected bug for fastq processing related to relative path of configs in unzipped fastq pipeline (app_online.R only)
 	
-	
-	Pop-level
-Allele frequencies
-Forensic parameters
-Sample-level
-Match statistics
-Kinship
-Database import
-Expanded haplotype database (consistent with ForenSeq UAS & RR+Flank)
-Stutter modeling? Autoflag Stutter? Stutter Calcs? Stutter Filtering?
-Custom configs
-Read merging
-More ML work on haplotype LR
-Private mutation nomenclature creation
-Alignment?
-IGV launcher
-User accounts with saved defaults
-Anything remotely resembling stutter [partially ready would be better if it were more dynamic]
-Alleles not in a stutter flag [potential trace or contaminate]
-Called stutter in Y-STRs need correcting (i.e., include max RAP to tag stutter calls)
+v 0.1.6 
+	Calculation of heterozygote balance for isoalleles
+	Toggle switch for expected vs. observed
+	Hold 100% upon restart
+	Showing locus name for loci missing data
+	Report allele rather than numeric in table
+	Removed closed beta tabs
