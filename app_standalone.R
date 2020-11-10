@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.1.5
+#Version ID: 0.1.6
 #
 #
 ##############################################
@@ -14,6 +14,7 @@ library(rhandsontable)
 library(tidyverse)
 library(shiny)
 library(Biostrings)
+library(stringi)
 
 
 
@@ -79,7 +80,7 @@ STRaitRazorv3<- function(ActiveFASTQ, numcores = 6, Kit = c("ForenSeq", "GlobalF
 }
 
 convert2pre3 <- function(STRaitRazorIO, Config) {
-  
+
   #Rename column headers   
   names(STRaitRazorIO) <- c("LocusAllele", "AlleleLength", "Haplotype", "HaplotypeCount", "HaplotypeCountRC")    
   
@@ -122,9 +123,7 @@ idcomphaps <- function(STRaitRazorIO, Config) {
   
   X_Allele <- (STRaitRazorIO$Allele[STRaitRazorIO$Allele == "X"] <- 0)
   Y_Allele <- (STRaitRazorIO$Allele[STRaitRazorIO$Allele == "Y"] <- 6)
-  
-  rm(X_Allele, Y_Allele)
-  
+
   #Enrich for STRs
   Type <- select(Config, Locus, Marker_Type)
   
@@ -211,6 +210,26 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
     mutate(SBC = ifelse(SB > 1, 1/SB, SB)) %>%
     mutate(HaplotypeSum = (HaplotypeCount + HaplotypeCountRC))
   
+  #Temporary merge locus and haplotype for DB
+  HaplotypeDatabase <- HaplotypeDatabase %>% 
+    unite(LH, Locus, Haplotype, remove = FALSE)
+  STRaitRazorIO <- STRaitRazorIO %>% 
+    unite(LH, Locus, Haplotype, remove = FALSE)
+  
+  #Merge with database
+  HaplotypeDatabase <- select(HaplotypeDatabase, LH, Nomenclature, Allele_Char)
+  STRaitRazorIO <- left_join(STRaitRazorIO, HaplotypeDatabase, by = "LH") %>% 
+    select(-(LH))
+  
+  #Consolidate alleles for reporting
+  STRaitRazorIO <- STRaitRazorIO %>% 
+    mutate(FinalAllele = ifelse(is.na(Allele_Char), as.character(Allele), Allele_Char)) %>% 
+    select(-(Allele_Char))
+  
+  #Combine Locus and CE state into nomenclature
+  STRaitRazorIO$Nomenclature <- ifelse(is.na(STRaitRazorIO$Nomenclature), "", paste0(STRaitRazorIO$Locus," [CE ", as.character(STRaitRazorIO$FinalAllele),"]", STRaitRazorIO$Nomenclature)) 
+  rm(HaplotypeDatabase)
+
   #Extract summary data
   LocusSummary <- summarize(dplyr::group_by(STRaitRazorIO, Locus), UniqueHaps = n(), TotalReads = sum(HaplotypeSum))
   AlleleSummary <- summarize(dplyr::group_by(STRaitRazorIO, Locus, Allele), UniqueHaps = n(), TotalReads = sum(HaplotypeSum))    
@@ -231,7 +250,7 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
     OutputPath <- file.path(ResultsDir, OutputDir, SampleName)
     
     #Save tables
-    write_tsv(as.data.frame(STRaitRazorIO), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
+    write_tsv(as.data.frame(relocate(select(STRaitRazorIO, -(Allele)), FinalAllele, .before = Haplotype)), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
     write_tsv(as.data.frame(AlleleSummary), paste0(OutputPath, "/", SampleName, "_AlleleSummary.tsv"))
     write_tsv(as.data.frame(LocusSummary), paste0(OutputPath, "/", SampleName, "_LocusSummary.tsv"))
     
@@ -244,8 +263,7 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
     
     STRaitRazorIO <- STRaitRazorIO %>% 
       mutate(RAP = (HaplotypeSum/TotalReads)) %>% 
-      select(-(UniqueHaps), -(TotalReads), -(HaplotypeCount), -(HaplotypeCountRC)) %>% 
-      select(1:4, 6:8, 5)
+      select(-(UniqueHaps), -(TotalReads), -(HaplotypeCount), -(HaplotypeCountRC), -(Repeat_Size))
     
     #Set thresholds
     Thresholds <- select(Config, Locus, HBT, RDT, SBT, RAPT)
@@ -278,34 +296,21 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       OutputPath <- file.path(ResultsDir, OutputDir, SampleName)
       
       #Save tables
-      write_tsv(as.data.frame(STRaitRazorIO), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
+      write_tsv(as.data.frame(relocate(select(STRaitRazorIO, -(Allele)), FinalAllele, .before = Haplotype)), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
       write_tsv(as.data.frame(AlleleSummary), paste0(OutputPath, "/", SampleName, "_AlleleSummary.tsv"))
       write_tsv(as.data.frame(LocusSummary), paste0(OutputPath, "/", SampleName, "_LocusSummary.tsv"))
-      write_tsv(as.data.frame(subThresh), paste0(OutputPath, "/", SampleName, "_subThresh.tsv"))
+      write_tsv(as.data.frame(relocate(select(subThresh, -(Allele)), FinalAllele, .before = Haplotype)), paste0(OutputPath, "/", SampleName, "_subThresh.tsv"))
       
       #Return variables
       return(list(STRaitRazorIO, AlleleSummary, LocusSummary, SampleName, OutputPath))
       
     }else{
-      
-      #Temporary merge locus and haplotype for DB
-      HaplotypeDatabase <- HaplotypeDatabase %>% 
-        unite(LH, Locus, Haplotype, remove = FALSE)
-      STRaitRazorIO <- STRaitRazorIO %>% 
-        unite(LH, Locus, Haplotype, remove = FALSE)
-      
-      #Merge with database
-      HaplotypeDatabase <- select(HaplotypeDatabase, LH, Nomenclature)
-      STRaitRazorIO <- left_join(STRaitRazorIO, HaplotypeDatabase, by = "LH") %>% 
-        select(-(LH))
-      STRaitRazorIO$Nomenclature <- ifelse(is.na(STRaitRazorIO$Nomenclature), "", paste0(STRaitRazorIO$Locus," [CE ", as.character(STRaitRazorIO$Allele),"]", STRaitRazorIO$Nomenclature)) 
-      rm(HaplotypeDatabase)
-      
+
       #Create abundance ratio
       STRaitRazorIO <- left_join(STRaitRazorIO, select(mutate(left_join(dplyr::rename(aggregate(HaplotypeSum ~ Locus, STRaitRazorIO, function(x) sort(x, decreasing = T)[1]), First = HaplotypeSum), dplyr::rename(aggregate(HaplotypeSum ~ Locus, STRaitRazorIO, function(x) sort(x, decreasing = T)[2]), Second = HaplotypeSum), by = "Locus"), AR = Second/First), Locus, AR), by = "Locus")
       
       #Single haplotype adjustment
-      STRaitRazorIO$AR <- ifelse(is.na(STRaitRazorIO$AR), 0,STRaitRazorIO$AR)
+      STRaitRazorIO$AR <- ifelse(is.na(STRaitRazorIO$AR), 0, STRaitRazorIO$AR)
       
       #Auto call alleles
       STRaitRazorIO$AutoCall <- ifelse(STRaitRazorIO$AR >= STRaitRazorIO$HBT & STRaitRazorIO$LocusRank <= 2, "a", ifelse(STRaitRazorIO$AR < STRaitRazorIO$HBT, ifelse(STRaitRazorIO$LocusRank == 1, "a", ""), ""))
@@ -314,14 +319,14 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       STRaitRazorIO$AR <- ifelse(STRaitRazorIO$AutoCall == "a" & STRaitRazorIO$LocusRank <= 2 & STRaitRazorIO$AR >= as.numeric(STRaitRazorIO$HBT), STRaitRazorIO$AR, "")
       
       #Spread data frame to determine balance direction
-      TempBalance <- filter(select(STRaitRazorIO, Locus, Allele, LocusRank, AutoCall), AutoCall == "a") %>% 
-        spread(LocusRank, Allele)
+      TempBalance <- filter(select(STRaitRazorIO, Locus, FinalAllele, LocusRank, AutoCall), AutoCall == "a") %>% 
+        spread(LocusRank, FinalAllele)
       
       #This accounts for homozygous only profiles (i.e., low-template DNA)
       if(length(TempBalance) == 3){
         TempBalance$AB <- 1
       }else{
-        TempBalance$AB <- ifelse(is.na(TempBalance$`2`), "", ifelse(TempBalance$`1` < TempBalance$`2`, 1, 0))
+        TempBalance$AB <- ifelse(is.na(TempBalance$`2`), "", ifelse(is.na(as.numeric(TempBalance$`1`)), ifelse(stri_cmp_lt(TempBalance$`1`, TempBalance$`2`), 1, 0), ifelse(as.numeric(TempBalance$`1`) < as.numeric(TempBalance$`2`), 1, 0)))
       }
       
       STRaitRazorIO <- left_join(STRaitRazorIO, select(TempBalance, Locus, AB), by = "Locus")
@@ -343,10 +348,10 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       OutputPath <- file.path(ResultsDir, OutputDir, SampleName)
       
       #Save tables
-      write_tsv(as.data.frame(STRaitRazorIO), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
+      write_tsv(as.data.frame(relocate(select(STRaitRazorIO, -(Allele)), FinalAllele, .before = Haplotype)), paste0(OutputPath, "/", SampleName, "_DataTable.tsv"))
       write_tsv(as.data.frame(AlleleSummary), paste0(OutputPath, "/", SampleName, "_AlleleSummary.tsv"))
       write_tsv(as.data.frame(LocusSummary), paste0(OutputPath, "/", SampleName, "_LocusSummary.tsv"))
-      write_tsv(as.data.frame(subThresh), paste0(OutputPath, "/", SampleName, "_subThresh.tsv"))
+      write_tsv(as.data.frame(relocate(select(subThresh, -(Allele)), FinalAllele, .before = Haplotype)), paste0(OutputPath, "/", SampleName, "_subThresh.tsv"))
       
       #Return variables
       return(list(STRaitRazorIO, AlleleSummary, LocusSummary, SampleName, OutputPath))                          
@@ -431,18 +436,18 @@ create_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
   
   PL_HaplotypeDepth <- STRaitRazorIO %>%  
     mutate(ID = paste0(Locus, "_", Haplotype)) %>%  
-    select(ID, Allele, Nomenclature, HaplotypeSum)
+    select(ID, FinalAllele, Nomenclature, HaplotypeSum)
   
   PL_HaplotypeRAP <- STRaitRazorIO %>%  
     mutate(ID = paste0(Locus, "_", Haplotype)) %>%  
-    select(ID, Allele, Nomenclature, RAP)  
+    select(ID, FinalAllele, Nomenclature, RAP)  
   
   PL_HaplotypeHB <- filter(STRaitRazorIO, LocusRank == "1") %>% 
     select(Locus, HB)
   
   PL_HaplotypeSB <- STRaitRazorIO %>%  
     mutate(ID = paste0(Locus, "_", Haplotype)) %>%  
-    select(ID, Allele, Nomenclature, SB)    
+    select(ID, FinalAllele, Nomenclature, SB)    
   
   #Tag the column with the name
   colnames(PL_AlleleDepth)[ncol(PL_AlleleDepth)] <- SampleName
@@ -469,18 +474,18 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
   
   temp_PL_HaplotypeDepth <- STRaitRazorIO %>% 
     mutate(ID = paste0(Locus, "_", Haplotype)) %>% 
-    select(ID, Allele, Nomenclature, HaplotypeSum)
+    select(ID, FinalAllele, Nomenclature, HaplotypeSum)
   
   temp_PL_HaplotypeRAP <- STRaitRazorIO %>% 
     mutate(ID = paste0(Locus, "_", Haplotype)) %>%  
-    select(ID, Allele, Nomenclature, RAP)  
+    select(ID, FinalAllele, Nomenclature, RAP)  
   
   temp_PL_HaplotypeHB <- filter(STRaitRazorIO, LocusRank == "1") %>% 
     select(Locus, HB)
   
   temp_PL_HaplotypeSB <- STRaitRazorIO %>%  
     mutate(ID = paste0(Locus, "_", Haplotype)) %>% 
-    select(ID, Allele, Nomenclature, Nomenclature, SB)  
+    select(ID, FinalAllele, Nomenclature, Nomenclature, SB)  
   
   
   #Find new alleles
@@ -490,16 +495,16 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
   new_PL_LocusDepth <- anti_join(select(temp_PL_LocusDepth, Locus), PL_LocusDepth, by = "Locus")
   PL_LocusDepth <- bind_rows(PL_LocusDepth, new_PL_LocusDepth)  
   
-  new_PL_HaplotypeDepth <- anti_join(select(temp_PL_HaplotypeDepth, ID, Allele, Nomenclature), PL_HaplotypeDepth, by = "ID")
+  new_PL_HaplotypeDepth <- anti_join(select(temp_PL_HaplotypeDepth, ID, FinalAllele, Nomenclature), PL_HaplotypeDepth, by = "ID")
   PL_HaplotypeDepth <- bind_rows(PL_HaplotypeDepth, new_PL_HaplotypeDepth)  
   
-  new_PL_HaplotypeRAP <- anti_join(select(temp_PL_HaplotypeRAP, ID, Allele, Nomenclature), PL_HaplotypeRAP, by = "ID")
+  new_PL_HaplotypeRAP <- anti_join(select(temp_PL_HaplotypeRAP, ID, FinalAllele, Nomenclature), PL_HaplotypeRAP, by = "ID")
   PL_HaplotypeRAP <- bind_rows(PL_HaplotypeRAP, new_PL_HaplotypeRAP)  
   
   new_PL_HaplotypeHB <- anti_join(select(temp_PL_HaplotypeHB, Locus), PL_HaplotypeHB, by = "Locus")
   PL_HaplotypeHB <- bind_rows(PL_HaplotypeHB, new_PL_HaplotypeHB)
   
-  new_PL_HaplotypeSB <- anti_join(select(temp_PL_HaplotypeSB, ID, Allele, Nomenclature), PL_HaplotypeSB, by = "ID")
+  new_PL_HaplotypeSB <- anti_join(select(temp_PL_HaplotypeSB, ID, FinalAllele, Nomenclature), PL_HaplotypeSB, by = "ID")
   PL_HaplotypeSB <- bind_rows(PL_HaplotypeSB, new_PL_HaplotypeSB)
   
   
@@ -561,7 +566,7 @@ STRidER_formatting <- function(longformData, Kit, DBPath){
   
   
   #Filter for the called alleles from the STRidER designated loci for sequence saving
-  STRidERSeqUp <- longGTDF_UL %>% 
+  STRidERSeqUp <- longGTDF %>% 
     filter(AutoCall =="a", STRidER_Up == 1) %>% 
     select(SampleName, Locus, Allele, Haplotype) %>% 
     mutate(fastaHeader = paste0(">", SampleName, "_", Locus, "_", Allele)) %>% 
@@ -663,7 +668,7 @@ STRidER_formatting <- function(longformData, Kit, DBPath){
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis"
+    title = "STRait Razor Analysis v0.1.6"
   ),
 
   ##############################################
@@ -698,12 +703,6 @@ ui <- dashboardPage(
       menuItem("Manual", tabName = "manual", icon = icon("file-pdf")),
       
       menuItem("Contact", tabName = "email", icon = icon("envelope")),
-      
-      menuItem("Beta Testing Info", tabName = "notes", icon = icon("comments"), badgeLabel = "New", badgeColor = "orange"),
-      
-      menuItem("Known Bugs", tabName = "bugs", icon = icon("pastafarianism")),
-      
-      menuItem("Coming soon", tabName = "notnow", icon = icon("fast-forward")),
             
       menuItem("Settings", tabName = "settings", icon = icon("ellipsis-v")),
       
@@ -1274,188 +1273,6 @@ ui <- dashboardPage(
       
       
       ##############################################
-      #Note to Beta Testers page       
-      tabItem(tabName = "notes",
-              fluidRow(
-                box(width = 10,
-                   h1("Notes to Beta Testers"),
-                   tags$br(),
-                   tags$i("Please take note of the functionality of the following features and, if possible, provide feedback into the utility and any changes desired for an improved user experience."),
-                   tags$br(),
-                   tags$br(),
-                   tags$p("1. Currently, all loci expected from each kit are pushed to the UI for interpretation. As a potential end-user, would you rather only have displayed the loci for which data was generated for a sample? The downside to seeing only loci from the sample rather than the kit would be that locus(i) drop-out would be more difficult to observe. However, partial profiles could be processed more quickly."),
-                   tags$br(),
-                   tags$p("2. The intent of the bar plot is to really just see if any loci may contain a second contributor. Given this is more likely to be observed with STR loci, I filtered for only these loci. And, listen, don't @me I realize that stutter confounds the issue and microhaplotypes are better, but quickly glancing at a profile is easier with STRs."),
-                   tags$br(),
-                   tags$p("3. "),
-                   tags$br(),
-                   tags$p("4. "),
-                   tags$br(),
-                   tags$i("Thank you so much for your time and feedback. Without help from users such as yourself, the program could not be improved and baby seals may have lost their lives. From the bottom of my heart thanks.")
-                )
-              ),
-              HTML("<br><br><br><br><br><br><br><br><br><br><br><br>"),
-              tags$div(
-                id = "footers",
-          ##############################################
-          #Apply primary footer
-                
-                tags$footer(
-                  
-                  tags$a(
-                    href = "https://www.unthsc.edu/graduate-school-of-biomedical-sciences/laboratory-faculty-and-staff/",
-                    target = "_blank",
-                    tags$img(
-                      src = "UNTCHI_RDU.png",
-                      width = "75",
-                      height = "75",
-                      align = "left",
-                      style = "margin: 10px 10px"
-                    )
-                  ), 
-                  
-                  tags$a(
-                    href = "https://www.untchi.org/",
-                    target = "_blank",
-                    tags$img(
-                      src = "CHI_2018.png",
-                      width = "75",
-                      height = "75",
-                      align = "right",
-                      style = "margin: 10px 10px"
-                    )
-                  ),
-                  
-                  tags$div(
-                    id = "social-media-icons",
-                    
-                    tags$br(),
-                    
-                    tags$a(
-                      href ="https://twitter.com/UNTCHI_RDU",
-                      target = "_blank",
-                      tags$img(src = "twitter.png",
-                               title = "UNTCHI RDU on Twitter",
-                               width = "30",
-                               height = "30",
-                               class = "displayed",
-                               style = "margin: 10px 10px"
-                      )
-                    ),
-                    
-                    tags$a(
-                      href ="https://www.instagram.com/untchi_rdu/",
-                      target = "_blank",
-                      tags$img(src = "instagram.png",
-                               title = "UNTCHI RDU on Instagram",
-                               width = "30",
-                               height = "30",
-                               class = "displayed",
-                               style = "margin: 10px 10px"
-                      )
-                    ),
-                    
-                    tags$a(
-                      href = "https://www.facebook.com/UNTCenterForHumanIdentification",
-                      target = "_blank",
-                      tags$img(src = "facebook.png",
-                               title = "UNTCHI RDU on Facebook",
-                               width = "30",
-                               height = "30",
-                               class = "displayed",
-                               style = "margin: 10px 10px"
-                      )
-                    )
-                  ),
-                  
-                  style = "background-color: #00778b;
-                  color: #FFFFFF;",
-                  
-                  HTML("<br><br>")
-                ),
-                
-          ##############################################
-                #Apply secondary footer    
-                tags$footer(
-                  tags$br(),
-                  
-                  tags$div(
-                    id = "secondary-footer-docs"
-                  ),
-                  
-                  tags$br(), 
-                  
-                  style = "background-color: #253746;
-                  color: #FFFFFF;"
-                )
-              )
-      ),
-      ##############################################
-      #Bugs reported page     
-      tabItem(tabName = "bugs",
-              fluidRow(
-                box(width = 10,
-                    h1("Known Bugs"),
-                    tags$br(),
-                    # tags$i("The following issues are known to occur in this iteration."),
-                    # tags$br(),
-                    # img(src = "I_dont_know.gif"),
-                    tags$i("This version knows no bugs!!!!!!!!!"),
-                    tags$br(),
-                    tags$br(),
-                    tags$p("1. "),
-                    tags$br(),
-                    tags$p("2. "),
-                    tags$br(),
-                    tags$p("3. "),
-                    tags$br(),
-                    tags$p("4. "),
-                    tags$br(),
-                    tags$i("Sorry for any inconvenience these bugs may have caused. Thanks so much for your patience.")
-                )
-              )
-      ),
-      
-      
-      ##############################################
-      #Coming soon page
-      tabItem(tabName = "notnow",
-              fluidRow(
-                box(width = 10,
-                    h1("When will soon be now?"),
-                    tags$br(),
-                    tags$i("The following items will be available in the future."),
-                    tags$br(),
-                    tags$br(),
-                    tags$p("1. Lots of stutter stuff. A) Autocall stutter B) Haplotype specific stutter filtering. C) So much more."),
-                    tags$br(),
-                    tags$p("2. Expand 'expert system' parameters."),
-                    tags$br(),
-                    tags$p("3. Maybe some haplotype-specific stuff with respect to noise."),
-                    tags$br(),
-                    tags$p("4. Length-based analysis option."),
-                    tags$br(),
-                    tags$p("5. Stats! Stats! Stats! Stats! Stats! Stats! Everybody!."),
-                    tags$br(),
-                    img(src = "shots.gif"),
-                    tags$br(),
-                    tags$p("6. Import haplotype frequency database."),
-                    tags$br(),
-                    tags$p("7. Clearer annotation of versions."),
-                    tags$br(),
-                    tags$p("8. Merge read 1 and read 2..."),
-                    tags$br(),
-                    tags$p("9. Accessibility; add alt text to plots, source data, etc."),
-                    tags$br(),
-                    tags$p("10. Custom configs for STRaitRazorOnline."),
-                    tags$br(),
-                    tags$i("Good luck, future me, in getting these implemented before launch.")
-                )
-              )
-      ),
-      
-      
-      ##############################################
       #Settings page
       tabItem(tabName = "settings",
               fluidRow(
@@ -1464,7 +1281,7 @@ ui <- dashboardPage(
                     div(style = "display: inline-block; padding: 0 10px 0 0", numericInput("cores", "Number of cores for v3", 6, 2, max = NA, step = 2)),
                     div(style = "display: inline-block; padding: 0 10px 0 10px", numericInput("gRDT", "Global Read Depth Thresh", 10, 1, NA)),
                     div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("recur", "Recursive Directories", value = TRUE)),
-                    div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("batchCall", "AutoCall Alleles (Batch Mode)", value = FALSE)),
+                    div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("expectedLoci", "Expected Loci", value = TRUE)),
                     div(style = "display: inline-block; padding: 0 0 0 0", checkboxInput("expertCall", "AutoPass Loci", value = FALSE)),
                     div(style = "display: inline-block; padding: 0 0 0 10px", checkboxInput("savePlots", "Save Bar Plots")),
                     conditionalPanel(
@@ -1544,8 +1361,7 @@ server <- function(input, output, session) {
         select(Status, locStatus, Locus) %>%
         distinct(Locus, .keep_all = TRUE)
     }else{
-      STRaitRazorAnalysisConfig <- as.data.frame(db$sraConfig)
-      STRaitRazorAnalysisConfig %>%
+      STRaitRazorAnalysisConfig <- as.data.frame(db$sraConfig) %>% 
         filter(Kitid == input$kits)
     }
     
@@ -1585,7 +1401,7 @@ server <- function(input, output, session) {
       DF <- hot_to_r(input$hot)
       
       #Select appropriate columns
-      newLines <- as.data.frame(select(filter(DF, Status == TRUE), -Status, -HapLen)) %>% 
+      newLines <- as.data.frame(select(filter(DF, Status == TRUE), -Status, -HapLen, -ID)) %>% 
         mutate(SLH = paste0(SampleName, "_", Locus, "_", Haplotype))
       
       #isolate unique entries and combine with current data frame
@@ -1640,24 +1456,60 @@ server <- function(input, output, session) {
   })
   
   
+  ##############################################
+  #Create data frame for expected loci
+  observeEvent({
+    values$fti
+    input$expectedLoci
+    1
+    }, {
+  
+    if(is.null(db$sraConfig)){return()} 
+    if(input$expectedLoci){
+      
+        db$loci <- as.data.frame(db$sraConfig) %>% 
+          filter(Kitid == input$kits) %>% 
+          select(Locus)
+      
+      }else{
+        
+        loci <- as.data.frame(values$df) %>% 
+          select(Locus)
+        db$loci <- unique(loci)  
+      
+      }
+      
+  })
+  
   
   ##############################################
   #Display profile progress
   output$progressBox <- renderValueBox({
     
     if (values$fileType <= 0){return(
+      
       valueBox(
-        paste0(round(0*100, digits = 1), "%"), "Progress", icon = NULL,
+        paste0(round(0 * 100, digits = 1), " %"), "Progress", icon = NULL,
         color = "black"
       )
       
     )}
     
-    maxLcount <- length(rt()$Locus)
-    valueBox(
-      paste0(round((values$lcount/maxLcount)*100, digits = 1), "%"), "Progress", icon = NULL,
-      color = "black"
-    )
+    if(is.null(final$df)){return(
+      
+      valueBox(
+        paste0(round(0 * 100, digits = 1), " %"), "Progress", icon = NULL,
+        color = "black"
+      )
+    
+    )}
+    
+      maxLcount <- nrow(unique(db$loci))
+      
+      valueBox(
+        paste0(round((length(unique(final$df$Locus))/maxLcount)*100, digits = 1), " %"), "Progress", icon = NULL,
+        color = "black"
+      )
   })
   
   
@@ -1668,15 +1520,16 @@ server <- function(input, output, session) {
       valueBox(
         round(0, digits = 0), "Pass QC", icon = icon("thumbs-up", class = "small_icon_test")
       )
-      
     )}
     
     if(input$expertCall){
-      DF <- final$df
+      DF <- final$df %>% 
+        filter(locStatus == "primary")
     }else{
       DF <- DF1() %>% 
         filter(locStatus == "primary")
     }
+    
     valueBox(
       length(unique(DF$Locus)), "Pass QC", icon = icon("thumbs-up", class = "small_icon_test")
     )
@@ -1859,7 +1712,7 @@ server <- function(input, output, session) {
               
               PL_STRaitRazorIO <- STRaitRazorIO %>%  
                 mutate(SampleName = SampleName) %>% 
-                select(AutoCall, SampleName, Locus, Nomenclature, Allele, Haplotype, HaplotypeSum, RAP, HB, SB)
+                select(AutoCall, SampleName, Locus, Nomenclature, FinalAllele, Haplotype, HaplotypeSum, RAP, HB, SB)
             }else {
               AppendDB <- append_PL_Haplotypes_dbs(AlleleSummary, STRaitRazorIO, LocusSummary, PL_AlleleDepth, PL_LocusDepth, PL_HaplotypeDepth, PL_HaplotypeRAP, PL_HaplotypeHB, PL_HaplotypeSB, SampleName)
                 PL_AlleleDepth <- data.frame(AppendDB[1])
@@ -1871,12 +1724,25 @@ server <- function(input, output, session) {
               
               new_PL_STRaitRazorIO <- STRaitRazorIO %>%  
                 mutate(SampleName = SampleName) %>% 
-                select(AutoCall, SampleName, Locus, Nomenclature, Allele, Haplotype, HaplotypeSum, RAP, HB, SB)
+                select(AutoCall, SampleName, Locus, Nomenclature, FinalAllele, Haplotype, HaplotypeSum, RAP, HB, SB)
               
               PL_STRaitRazorIO <- bind_rows(PL_STRaitRazorIO, new_PL_STRaitRazorIO)
             }
           }
         }
+        
+        #Rename Allele column
+        PL_STRaitRazorIO <- PL_STRaitRazorIO %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
+        
+        PL_HaplotypeDepth <- PL_HaplotypeDepth %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
+        
+        PL_HaplotypeRAP <- PL_HaplotypeRAP %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
+        
+        PL_HaplotypeSB <- PL_HaplotypeSB %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
         
         #Ready config
         Config <- as.data.frame(db$sraConfig) %>% 
@@ -2038,7 +1904,7 @@ server <- function(input, output, session) {
               
               PL_STRaitRazorIO <- STRaitRazorIO %>%  
                 mutate(SampleName = SampleName) %>% 
-                select(AutoCall, SampleName, Locus, Nomenclature, Allele, Haplotype, HaplotypeSum, RAP, HB, SB)
+                select(AutoCall, SampleName, Locus, Nomenclature, FinalAllele, Haplotype, HaplotypeSum, RAP, HB, SB)
             }else {
               AppendDB <- append_PL_Haplotypes_dbs(AlleleSummary, STRaitRazorIO, LocusSummary, PL_AlleleDepth, PL_LocusDepth, PL_HaplotypeDepth, PL_HaplotypeRAP, PL_HaplotypeHB, PL_HaplotypeSB, SampleName)
                 PL_AlleleDepth <- data.frame(AppendDB[1])
@@ -2050,12 +1916,25 @@ server <- function(input, output, session) {
               
               new_PL_STRaitRazorIO <- STRaitRazorIO %>%  
                 mutate(SampleName = SampleName) %>% 
-                select(AutoCall, SampleName, Locus, Nomenclature, Allele, Haplotype, HaplotypeSum, RAP, HB, SB)
+                select(AutoCall, SampleName, Locus, Nomenclature, FinalAllele, Haplotype, HaplotypeSum, RAP, HB, SB)
                 
               PL_STRaitRazorIO <- bind_rows(PL_STRaitRazorIO, new_PL_STRaitRazorIO)
             }
           }
         }
+        
+        #Rename Allele column
+        PL_STRaitRazorIO <- PL_STRaitRazorIO %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
+        
+        PL_HaplotypeDepth <- PL_HaplotypeDepth %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
+        
+        PL_HaplotypeRAP <- PL_HaplotypeRAP %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
+        
+        PL_HaplotypeSB <- PL_HaplotypeSB %>% 
+          dplyr::rename('Allele' = 'FinalAllele')
         
         #Ready config
         Config <- as.data.frame(db$sraConfig) %>%
@@ -2209,7 +2088,7 @@ server <- function(input, output, session) {
 
     DF <- DF %>% 
       mutate(Status = ifelse(AutoCall == "a", TRUE, FALSE)) %>% 
-      select(-AutoCall, -AR, -Repeat_Size) %>% 
+      select(-AutoCall, -AR) %>% 
       select(Status, everything()) %>% 
       mutate(HapLen = nchar(DF$Haplotype)) %>% 
       filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25)
@@ -2227,21 +2106,21 @@ server <- function(input, output, session) {
     DF <- left_join(DF, tempRAP, by = "ID") %>%
       ungroup() %>% 
       mutate(locStatus = if_else(RAP_Sum < AutoRAPT, "warning", "primary")) %>% 
-      select(-AutoRAPT, -ID, -RAP_Sum)
+      select(SampleName, Locus, FinalAllele, Nomenclature, HaplotypeSum, HB, RAP, SB, Haplotype, LocusRank, locStatus, Allele, HapLen, Status, ID) 
     
     #Conditionally parse data frame by locus status
     if(input$expertCall){
 
       #Fast-pass the loci passing QC to final data frame
       final$df <- DF %>% 
-        select(1:4, 10, 6, 11, 7, 8, 5, 12, 9, 13) %>% 
         filter(locStatus == "primary", Status == "TRUE") %>% 
-        select(-Status, -HapLen) %>% 
+        select(-HapLen, -Status, -ID) %>% 
         mutate(SLH = paste0(SampleName, "_", Locus, "_", Haplotype))
       
       #Send the rest of the loci to the UI
       DF %>% 
         filter(locStatus == "warning")
+      
     }else{
       DF
     }
@@ -2266,7 +2145,6 @@ server <- function(input, output, session) {
       DF1() %>% 
         filter(Locus == rt()[values$lcount, 3])
     } 
-    
     
   })
   
@@ -2341,16 +2219,20 @@ server <- function(input, output, session) {
     
     updateNumericInput(session, "RAP_Threshold", value = LocusInfo[[1, 20]])
   })  
-    
+
+      
   ##############################################
   #Render box UI and ggplot
   
   #Create box and insert ggplot
   output$plotFullUI <- renderUI({
     
-    if (values$fileType <= 0){return(invisible())}
+    if ((values$fileType <= 0)) {return(invisible())}
+    if ((nrow(as_data_frame(DF2())) < 1)) {return(
+      box(title = h4(uiOutput('TargetLocus'), style = "font-family: Times New Roman"), solidHeader = TRUE, status = "danger", plotOutput("plotFull"))
+      )}
     
-    status <- DF2()[1, 13]
+    status <- DF2()[1, 11]
 
     box(title = h4(uiOutput('TargetLocus'), style = "font-family: Times New Roman"), solidHeader = TRUE, status = status, plotOutput("plotFull"))
     
@@ -2360,7 +2242,7 @@ server <- function(input, output, session) {
   output$plotFull <- renderPlot({
 
     #Apply thresholds
-    DF <- DF2() %>%
+    DF <- DF2() %>% 
       filter(SB >= input$SB_Threshold, HaplotypeSum >= input$HD_Threshold, RAP >= input$RAP_Threshold) 
     
     #Axis labels of bar plots
@@ -2383,13 +2265,12 @@ server <- function(input, output, session) {
 
     if (values$fileType <= 0){return(invisible())}
     
-    DF <- DF2()
-    
-    DF <- DF %>% 
-      select(1:4, 10, 6, 11, 7, 8, 5, 12, 9, 13)
+      DF <- DF2() %>% 
+        relocate(Status, .before = SampleName)
     
     if (!is.null(DF))
-      rhandsontable(filter(DF,SB >= input$SB_Threshold, HaplotypeSum >= input$HD_Threshold, RAP >= input$RAP_Threshold), useTypes = TRUE, stretchH = "all")
+      
+      rhandsontable(filter(DF, SB >= input$SB_Threshold, HaplotypeSum >= input$HD_Threshold, RAP >= input$RAP_Threshold), useTypes = TRUE, stretchH = "all")
     
   })
   
@@ -2429,9 +2310,9 @@ server <- function(input, output, session) {
     DF <- hot_to_r(input$hot)
     
     #Select appropriate columns
-    newLines <- as.data.frame(select(filter(DF, Status == TRUE), -Status, -HapLen)) %>% 
+    newLines <- as.data.frame(select(filter(DF, Status == TRUE), -Status, -HapLen, -ID)) %>% 
       mutate(SLH = paste0(SampleName, "_", Locus, "_", Haplotype))
-    
+
     #isolate unique entries and combine with current data frame
     newLines <- if(is.null(final$df)){
       final$df <- newLines
@@ -2450,8 +2331,15 @@ server <- function(input, output, session) {
     if (values$fileType <= 0){return(invisible())}
     
     #Load the data frame  
-    DF <- DF1()
+    DF <- values$df
     
+    #Add length for plotting
+    DF <- DF %>% 
+      mutate(Status = ifelse(AutoCall == "a", TRUE, FALSE)) %>%
+      mutate(HapLen = nchar(DF$Haplotype)) %>% 
+      filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25)
+    
+    #Extract name
     SampleName <- DF[1, 2]
     
     #Load config file
@@ -2464,8 +2352,7 @@ server <- function(input, output, session) {
     #Enrich for STRs and filter out noise
     DF <- left_join(DF, Type) %>% 
       filter(Marker_Type %in% c("STR","INDEL")) %>% 
-      filter(HaplotypeSum >= input$rdt) %>% 
-      select(-(Marker_Type))
+      filter(HaplotypeSum >= input$rdt)
       
     ggplot(DF, aes(HapLen, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, ncol = input$ncolumns, scales = "free_x") + theme_classic() + scale_fill_manual(values = Palette272) + theme(panel.spacing = unit(2, "lines"), strip.text = element_text(face = "bold", size = 12, lineheight = 5.0, color = "#FFFFFF"), strip.background = element_rect(fill = "#00778b"), axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = HapLen, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 1, vjust = 0), size = 5) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))
       
@@ -2502,8 +2389,7 @@ server <- function(input, output, session) {
     DF <- left_join(DF, Type) %>% 
       filter(Marker_Type %in% c("STR","INDEL")) %>% 
       filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25) %>% 
-      filter(HaplotypeSum >= input$rdtFinal) %>% 
-      select(-(Marker_Type))
+      filter(HaplotypeSum >= input$rdtFinal)
     
     ggplot(DF, aes(HapLen, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, ncol = input$ncolumnsFinal, scales = "free_x") + theme_classic() + scale_fill_manual(values = Palette272) + theme(panel.spacing = unit(2, "lines"), strip.text = element_text(face = "bold", size = 12, lineheight = 5.0, color = "#FFFFFF"), strip.background = element_rect(fill = "#00778b"), axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = HapLen, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 1, vjust = 0), size = 5) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))
     
@@ -2515,7 +2401,7 @@ server <- function(input, output, session) {
   output$finalTable <- renderRHandsontable({
     shiny::req(final$df)
     
-    rhandsontable(select(final$df, 1:10),
+    rhandsontable(select(final$df, 1:11),
       useTypes = TRUE, 
       stretchH = "all") 
     
@@ -2543,8 +2429,12 @@ server <- function(input, output, session) {
       dir.create(file.path(OutputPath), showWarnings = FALSE, recursive = TRUE)
     }
     
+    DF <- final$df %>% 
+      select(-SLH, -Allele) %>% 
+      dplyr::rename('Allele' = 'FinalAllele')
+    
     #Save tables
-    write_tsv(as.data.frame(final$df), paste0(OutputPath, "/", SampleName, "_FinalDataTable.tsv"))
+    write_tsv(as.data.frame(DF), paste0(OutputPath, "/", SampleName, "_FinalDataTable.tsv"))
     
   })
   
@@ -2566,10 +2456,15 @@ server <- function(input, output, session) {
       dir.create(file.path(OutputPath), showWarnings = FALSE, recursive = TRUE)
     }
     
+    DF <- final$df %>% 
+      select(-SLH, -Allele) %>% 
+      dplyr::rename('Allele' = 'FinalAllele')
+    
     #Save tables
-    write_tsv(as.data.frame(final$df), paste0(OutputPath, "/", SampleName, "_FinalDataTable.tsv"))
+    write_tsv(as.data.frame(DF), paste0(OutputPath, "/", SampleName, "_FinalDataTable.tsv"))
     
   })
+  
   
   ##############################################
   #Push plot to UI
@@ -2614,9 +2509,8 @@ server <- function(input, output, session) {
   
   ##############################################
   #Open STRait Razor manual
-  output$sraManual <- renderUI({tags$iframe(style = "height: 800px; width: 100%", src = "STRaitRazoR.pdf")})
+  output$sraManual <- renderUI({tags$iframe(style = "height: 800px; width: 100%", src = "STRaitRazorOnlineManual.pdf")})
  
-  
 }
 
 ##############################################
