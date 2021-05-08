@@ -1,0 +1,27 @@
+SRv3-ForenSeqv1.25
+	-Removed 5 bases from right flank of DYS448 to increase reportable region (22219078-->22219083)
+
+SRv3-PowerSeqv2.1
+	Added A to 5' end of Y-GATA-H4
+	
+	-PowerSeqv2.2
+	Changed PENTA -> Penta
+	-PowerSeqv2.3
+	Updated anchors and flanking region for TPOX, D12S391, and D18S51
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SRv2s-
