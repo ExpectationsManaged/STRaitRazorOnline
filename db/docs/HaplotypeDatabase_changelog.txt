@@ -13,3 +13,8 @@ v0.3 04/13/2021
 v0.4 05/08/2021
 	-updated PowerSeq sequence-based allele for TPOX, D12S391, and D18S51
 	-updated reported region bounds for PowerSeq loci (TPOX, D12S391, and D18S51)
+	
+v0.5 05/10/2021
+	-Added inferred MainstAY haplotype database
+		Loci inferred based on promise of primer consistency between ForenSeq DNA signature and ForenSeq MainstAY
+			DYS393 inferred from PowerSeq reduced haplotype
