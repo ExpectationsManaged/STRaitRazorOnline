@@ -4,3 +4,5 @@ v0.2 (04162021)
 	-Reduced threshold to zero for strand balance (PowerSeq and GlobalFiler NGSv2)
 v0.3 (05082021)
 	-Updated reported region bounds for PowerSeq loci for TPOX, D12S391, and D18S51
+v0.31 (05102021)
+	-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
