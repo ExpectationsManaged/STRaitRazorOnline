@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.1.6
+#Version ID: 0.1.8
 #
 #
 ##############################################
@@ -367,10 +367,10 @@ STRaitRazorFigures <- function(STRaitRazorIO, AlleleSummary, LocusSummary, Globa
   
   #Plot sequence-based bar plot
   if(colorCount > 272){
-    Electrofakogram <- ggplot(STRaitRazorIO, aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = sample(randomColor,colorCount)) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))
+    Electrofakogram <- ggplot(STRaitRazorIO, aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = sample(randomColor,colorCount)) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15, 0))
     
   }else{
-    Electrofakogram <- ggplot(STRaitRazorIO, aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = Palette272) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))      
+    Electrofakogram <- ggplot(STRaitRazorIO, aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = Palette272) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15, 0))      
   }
   
   ggsave(paste0(OutputPath, "/", SampleName, "/", SampleName, "_SB_Electrofakogram.jpg"), plot = Electrofakogram, width = 24, height = 24, dpi = 320)
@@ -381,7 +381,7 @@ STRaitRazorFigures <- function(STRaitRazorIO, AlleleSummary, LocusSummary, Globa
   ggsave(paste0(OutputPath, "/", SampleName, "/", SampleName, "_LocusSummaryPlot.jpg"), plot = LocusSummaryPlot, width = 9, height = 24, dpi = 320)
   
   #Plot length-based bar plot
-  ElectroFakogram_LB <- ggplot(filter(AlleleSummary, TotalReads >= GlobalRDT), aes(Allele, TotalReads)) + geom_bar(stat = "identity") + facet_wrap(~Locus, scales = "free_x") + theme_classic() + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Length-based Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(TotalReads)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))
+  ElectroFakogram_LB <- ggplot(filter(AlleleSummary, TotalReads >= GlobalRDT), aes(Allele, TotalReads)) + geom_bar(stat = "identity") + facet_wrap(~Locus, scales = "free_x") + theme_classic() + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Length-based Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(TotalReads)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15, 0))
   
   ggsave(paste0(OutputPath, "/", SampleName, "/", SampleName, "_LB_ElectroFakogram.jpg"), plot = ElectroFakogram_LB, width = 24, height = 24, dpi = 320)
 }
@@ -394,10 +394,10 @@ STRaitRazorFigures_byType <- function(STRaitRazorIO, AlleleSummary, LocusSummary
   
   #Save STR figures 
   if(colorCount > 272){
-    Electrofakogram <- ggplot(filter(STRaitRazorIO, Marker_Type == "STR"), aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = sample(randomColor,colorCount)) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))
+    Electrofakogram <- ggplot(filter(STRaitRazorIO, Marker_Type == "STR"), aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = sample(randomColor,colorCount)) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15, 0))
     
   }else{
-    Electrofakogram <- ggplot(filter(STRaitRazorIO, Marker_Type == "STR"), aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = Palette272) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))      
+    Electrofakogram <- ggplot(filter(STRaitRazorIO, Marker_Type == "STR"), aes(Allele, HaplotypeSum, fill = as.factor(LocusRank))) + geom_bar(stat = "identity", show.legend = FALSE) + facet_wrap(~Locus, scales = "free_x") + theme_classic() + scale_fill_manual(values = Palette272) + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Sequence-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(HaplotypeSum)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15, 0))      
   }
   
   ggsave(paste0(OutputPath, "/", SampleName, "/", SampleName, "_SB_STR_Electrofakogram.jpg"), plot = Electrofakogram, width = 12, height = 12, dpi = 320)
@@ -406,7 +406,7 @@ STRaitRazorFigures_byType <- function(STRaitRazorIO, AlleleSummary, LocusSummary
   
   ggsave(paste0(OutputPath, "/", SampleName, "/", SampleName, "_LocusSummaryPlot.jpg"), plot = LocusSummaryPlot, width = 9, height = 12, dpi = 320)
   
-  ElectroFakogram_LB <- ggplot(filter(AlleleSummary, TotalReads >= GlobalRDT, Marker_Type == "STR"), aes(Allele, TotalReads)) + geom_bar(stat = "identity") + facet_wrap(~Locus, scales = "free_x") + theme_classic() + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Length-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(TotalReads)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15,0))
+  ElectroFakogram_LB <- ggplot(filter(AlleleSummary, TotalReads >= GlobalRDT, Marker_Type == "STR"), aes(Allele, TotalReads)) + geom_bar(stat = "identity") + facet_wrap(~Locus, scales = "free_x") + theme_classic() + theme(axis.text.x = element_blank(), axis.line.x = element_blank(), axis.ticks.x = element_blank(), plot.title = element_text(hjust = 0.5), axis.title.x = element_text(vjust = 0.5, hjust = 0.5)) + labs(title = paste0(SampleName, " Length-based STR Barplot"), y = "Read Depth", x = "Alleles") + geom_text(aes(x = Allele, y = (0-(max(TotalReads)/10)), label = round(Allele, 1), angle = 90, hjust = 0.5, vjust = 0.5), size = 2) + geom_hline(yintercept = 0) + scale_y_continuous(expand = c(0.15, 0))
   
   ggsave(paste0(OutputPath, "/", SampleName, "/", SampleName, "_LB_STR_ElectroFakogram.jpg"), plot = ElectroFakogram_LB, width = 12, height = 12, dpi = 320)
   
@@ -668,7 +668,7 @@ STRidER_formatting <- function(longformData, Kit, DBPath){
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.1.6"
+    title = "STRait Razor Analysis v0.1.7"
   ),
 
   ##############################################
@@ -2340,7 +2340,7 @@ server <- function(input, output, session) {
       filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25)
     
     #Extract name
-    SampleName <- DF[1, 2]
+    SampleName <- DF[1, 1]
     
     #Load config file
 

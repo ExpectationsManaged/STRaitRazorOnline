@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.1.6
+#Version ID: 0.1.8
 #
 #
 ##############################################
@@ -654,7 +654,7 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.1.6"
+    title = "STRait Razor Analysis v0.1.7"
   ),
 
   ##############################################
@@ -1949,7 +1949,7 @@ server <- function(input, output, session) {
       filter(Locus != "DYS389I" | Locus == "DYS389I" & Allele <= 25)
     
     #Extract name
-    SampleName <- DF[1, 2]
+    SampleName <- DF[1, 1]
     
     #Load config file
 
