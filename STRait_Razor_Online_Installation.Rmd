@@ -1,0 +1,41 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+install.packages("tidyverse")
+```
+
+
+```{r}
+install.packages("BiocManager")
+```
+
+
+```{r}
+BiocManager::install("Biostrings")
+```
+
+
+```{r}
+install.packages("shinydashboard")
+#Note: when loading shiny on 10.18.2019, an error occurred with htmltools. Trying to update it failed. Removing the package and reinstalling resolved
+```
+
+
+```{r}
+install.packages("rhandsontable")
+```
+
+
+```{r}
+install.packages("plotly")
+```
+
+
+```{r}
+install.packages("data.table")
+```
+
