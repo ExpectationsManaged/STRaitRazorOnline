@@ -18,3 +18,6 @@ v0.5 05/10/2021
 	-Added inferred MainstAY haplotype database
 		Loci inferred based on promise of primer consistency between ForenSeq DNA signature and ForenSeq MainstAY
 			DYS393 inferred from PowerSeq reduced haplotype
+			
+v0.6 07/23/2021
+	-Added IDseek SNP85 kit

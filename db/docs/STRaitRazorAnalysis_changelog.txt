@@ -6,3 +6,5 @@ v0.3 (05082021)
 	-Updated reported region bounds for PowerSeq loci for TPOX, D12S391, and D18S51
 v0.31 (05102021)
 	-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
+v0.4 (07232021)
+	-Added IDseek_SNP85 kit information

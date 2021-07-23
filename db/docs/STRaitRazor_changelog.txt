@@ -21,3 +21,6 @@ SRv3-GlobalFilerNGSv2_v7.1
 
 SRv3-MainstAY_v0.1
 		-Launch!!! (Note: DYS393 anchors proximal to repeat region due to lack of information from Verogen)
+		
+SRv3-IDseek_SNP85_v0.1
+		-Launch!!!
