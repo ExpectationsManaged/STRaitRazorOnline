@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.1.8
+#Version ID: 0.1.9
 #
 #
 ##############################################
@@ -668,7 +668,7 @@ STRidER_formatting <- function(longformData, Kit, DBPath){
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.1.7"
+    title = "STRait Razor Analysis v0.1.9"
   ),
 
   ##############################################
@@ -2228,7 +2228,7 @@ server <- function(input, output, session) {
   output$plotFullUI <- renderUI({
     
     if ((values$fileType <= 0)) {return(invisible())}
-    if ((nrow(as_data_frame(DF2())) < 1)) {return(
+    if ((nrow(as_tibble(DF2())) < 1)) {return(
       box(title = h4(uiOutput('TargetLocus'), style = "font-family: Times New Roman"), solidHeader = TRUE, status = "danger", plotOutput("plotFull"))
       )}
     
