@@ -128,7 +128,6 @@ v 0.1.8 (05/10/2021)
 		ForenSeq --> ForenSeq DNA Signature
 		PowerSeq --> PowerSeq 46GY
 	-Added Kit ForenSeq MainstAY
-	
 	-Updated config files
 		ForenSeq DNA Signature: ForenSeqv1.25 --> ForenSeqv1.26
 		GlobalFilerNGSv2: GFNGSv2_v7 --> GFNGSv2_v7.1
