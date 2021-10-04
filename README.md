@@ -122,3 +122,24 @@ v 0.1.6
 	
 v 0.1.7 (config update...no code): 01/05/2021
 	Updated recommended PowerSeq config v2-->v2.1
+
+v 0.1.8 (05/10/2021)
+	-Changed Kit IDs
+		ForenSeq --> ForenSeq DNA Signature
+		PowerSeq --> PowerSeq 46GY
+	-Added Kit ForenSeq MainstAY
+	
+	-Updated config files
+		ForenSeq DNA Signature: ForenSeqv1.25 --> ForenSeqv1.26
+		GlobalFilerNGSv2: GFNGSv2_v7 --> GFNGSv2_v7.1
+		PowerSeq 46GY: PowerSeqv2.1 --> PowerSeqv3.1
+	-Updated Sample Name bug in All Loci Tab to display sample name rather than locus
+	
+v 0.1.9 (config update...no code): 07/23/2021
+	-Added Kit IDseek SNP85
+	
+v 0.2: 08/19/2021
+	-Added Locus to haplotype for revComp filter to account for repeat region similarities
+
+v 0.2.1: 10/04/2021	
+	-Added hotfix for processing multi-format data alongside single-format (i.e., STRs with STR & SNP data in batch processing) credit: S.P. from VCU
