@@ -49,3 +49,9 @@ v 0.1.8 (05/10/2021)
 	
 v 0.1.9 (config update...no code): 07/23/2021
 	-Added Kit IDseek SNP85
+	
+v 0.2: 08/19/2021
+	-Added Locus to haplotype for revComp filter to account for repeat region similarities
+
+v 0.2.1: 10/04/2021	
+	-Added hotfix for processing multi-format data alongside single-format (i.e., STRs with STR & SNP data in batch processing) credit: S.P. from VCU
