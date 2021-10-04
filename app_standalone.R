@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.1.9
+#Version ID: 0.2.1
 #
 #
 ##############################################
@@ -193,10 +193,11 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
     mutate(KeepRC = (ifelse(str_detect(STRaitRazorIO$HaplotypeRC, STRaitRazorIO$InternalMotif1), 1, 0) + ifelse(str_detect(STRaitRazorIO$HaplotypeRC, STRaitRazorIO$InternalMotif2), 1, 0) + ifelse(str_detect(STRaitRazorIO$HaplotypeRC, STRaitRazorIO$InternalMotif3), 1, 0)))
   
   STRaitRazorIO <- STRaitRazorIO %>% 
-    mutate(FinalHaplotype = ifelse(STRaitRazorIO$Keep >= STRaitRazorIO$KeepRC, STRaitRazorIO$Haplotype, STRaitRazorIO$HaplotypeRC)) 
+    mutate(FinalHaplotype = ifelse(STRaitRazorIO$Keep >= STRaitRazorIO$KeepRC, STRaitRazorIO$Haplotype, STRaitRazorIO$HaplotypeRC)) %>% 
+    mutate(FinalHaplotype2 = paste0(Locus, "_", FinalHaplotype))
   
   STRaitRazorIO <- STRaitRazorIO %>% 
-    mutate(ContainsComp = ifelse((duplicated(STRaitRazorIO$FinalHaplotype) | duplicated(STRaitRazorIO$FinalHaplotype, fromLast = TRUE)), 1, 0))
+    mutate(ContainsComp = ifelse((duplicated(STRaitRazorIO$FinalHaplotype2) | duplicated(STRaitRazorIO$FinalHaplotype2, fromLast = TRUE)), 1, 0))
   
   STRaitRazorIO <- STRaitRazorIO %>% 
     mutate(DesiredStrand = ifelse(ContainsComp == 0, 1, ifelse(Keep >= KeepRC, 1, 0))) %>% 
@@ -336,7 +337,10 @@ STRaitRazorFilter <- function(allsequences, SampleName, Kit, GlobalRDT = 2, mkal
       STRaitRazorIO <- STRaitRazorIO %>% 
         type_convert() %>% 
         mutate(HB = ifelse(AB == 0, (1/as.numeric(AR)), ifelse(AB == 1, AR, ""))) %>% 
-        select(-(AB), -(HBT))                          
+        select(-(AB), -(HBT))
+      
+      #Convert final allele to character to account for SNP-less SNP data
+      STRaitRazorIO$FinalAllele <- as.character(STRaitRazorIO$FinalAllele)
       
       #Sample subdirectories
       if (file.exists(file.path(ResultsDir, OutputDir, SampleName))){
@@ -668,7 +672,7 @@ STRidER_formatting <- function(longformData, Kit, DBPath){
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.1.9"
+    title = "STRait Razor Analysis v0.2.1"
   ),
 
   ##############################################
