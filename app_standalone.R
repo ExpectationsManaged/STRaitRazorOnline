@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.2.1
+#Version ID: 0.2.2
 #
 #
 ##############################################
@@ -672,7 +672,7 @@ STRidER_formatting <- function(longformData, Kit, DBPath){
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.2.1"
+    title = "STRait Razor Analysis v0.2.2"
   ),
 
   ##############################################

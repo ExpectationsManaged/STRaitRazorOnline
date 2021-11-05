@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.2.1
+#Version ID: 0.2.2
 #
 #
 ##############################################
@@ -658,7 +658,7 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.2.1"
+    title = "STRait Razor Analysis v0.2.2"
   ),
 
   ##############################################
