@@ -1,23 +1,29 @@
 v0.1 Release
 
-v0.2 01/28/2021
+v0.2.0 01/28/2021
 	-changed chr5:123775552 to rs73801920
 	-changed chr21:43636140 to rs1601706020
 	-changed chr19:29926349 to rs533519464
 	
-v0.3 04/13/2021
+v0.3.0 04/13/2021
 	-updated PowerSeq allele nomenclature for current bounds
 	-Changed PENTA -> Penta (PowerSeq)
 	-removed artifact haplotype due to degenerate base @DYS393 (PowerSeq)
 	
-v0.4 05/08/2021
+v0.4.0 05/08/2021
 	-updated PowerSeq sequence-based allele for TPOX, D12S391, and D18S51
 	-updated reported region bounds for PowerSeq loci (TPOX, D12S391, and D18S51)
 	
-v0.5 05/10/2021
+v0.5.0 05/10/2021
 	-Added inferred MainstAY haplotype database
 		Loci inferred based on promise of primer consistency between ForenSeq DNA signature and ForenSeq MainstAY
 			DYS393 inferred from PowerSeq reduced haplotype
 			
-v0.6 07/23/2021
+v0.6.0 07/23/2021
 	-Added IDseek SNP85 kit
+	
+v0.6.1 10/11/2021
+	-Added ForenSeq [DNA Sig and MainstAY] haplotypes observed
+
+v0.6.2 11/05/2021
+	-Added DYS393 flanking region information
