@@ -1,0 +1,28 @@
+SRv3	-ForenSeqv1.25
+		-Removed 5 bases from right flank of DYS448 to increase reportable region (22219078-->22219083)
+	-ForenSeqv1.26
+		-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
+
+
+SRv3	-PowerSeqv2.1
+		-Added A to 5' end of Y-GATA-H4
+	
+	-PowerSeqv2.2
+		-Changed PENTA -> Penta
+	-PowerSeqv2.3
+		-Updated anchors and flanking region for TPOX, D12S391, and D18S51
+	-PowerSeqv2.31
+		-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
+
+
+SRv3	-GlobalFilerNGSv2_v7.1
+		-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
+
+
+SRv3	-MainstAY_v0.1
+		-Launch!!! (Note: DYS393 anchors proximal to repeat region due to lack of information from Verogen)
+	-MainstAY_v0.2
+		-Updated DYS393 anchors with flanking region information based on flanking region report UAS v2.4
+		
+SRv3	-IDseek_SNP85_v0.1
+		-Launch!!!
