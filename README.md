@@ -142,3 +142,7 @@ v 0.2: 08/19/2021
 
 v 0.2.1: 10/04/2021	
 	-Added hotfix for processing multi-format data alongside single-format (i.e., STRs with STR & SNP data in batch processing) credit: S.P. from VCU
+	
+v 0.2.2: 11/05/2021
+	-Updated MainstAY config file to include flanking region information for DYS393
+	-Added 7z.dll to bin to account for dll module failure on fastq unzipping
