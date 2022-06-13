@@ -32,7 +32,7 @@ v 0.1.6
 	Report allele rather than numeric in table
 	Removed closed beta tabs
 	
-v 0.1.7 (config update...no code): 01/05/2021
+v 0.1.7 (#NoCodeUpdate): 01/05/2021
 	Updated recommended PowerSeq config v2-->v2.1
 
 v 0.1.8 (05/10/2021)
@@ -47,7 +47,7 @@ v 0.1.8 (05/10/2021)
 		PowerSeq 46GY: PowerSeqv2.1 --> PowerSeqv3.1
 	-Updated Sample Name bug in All Loci Tab to display sample name rather than locus
 	
-v 0.1.9 (config update...no code): 07/23/2021
+v 0.1.9 (#NoCodeUpdate): 07/23/2021
 	-Added Kit IDseek SNP85
 	
 v 0.2: 08/19/2021
@@ -56,5 +56,10 @@ v 0.2: 08/19/2021
 v 0.2.1: 10/04/2021	
 	-Added hotfix for processing multi-format data alongside single-format (i.e., STRs with STR & SNP data in batch processing) credit: S.P. from VCU
 	
-v 0.2.2: 11/05/2021
+v 0.2.2 (#NoCodeUpdate): 11/05/2021
 	-Updated MainstAY config file to include flanking region information for DYS393
+	-Added 7z.dll to bin to account for dll module failure on fastq unzipping
+	
+v 0.2.3: 06/13/2022
+	-Updated 'Find New Alleles' section to address no new data bug (Standalone only)
+	
