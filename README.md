@@ -146,3 +146,6 @@ v 0.2.1: 10/04/2021
 v 0.2.2: 11/05/2021
 	-Updated MainstAY config file to include flanking region information for DYS393
 	-Added 7z.dll to bin to account for dll module failure on fastq unzipping
+	
+v 0.2.3: 06/13/2022
+	-Updated 'Find New Alleles' section to address no new data bug (Standalone only)
