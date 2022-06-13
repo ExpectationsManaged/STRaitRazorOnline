@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.2.2
+#Version ID: 0.2.3
 #
 #
 ##############################################
@@ -500,15 +500,18 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
   PL_LocusDepth <- bind_rows(PL_LocusDepth, new_PL_LocusDepth)  
   
   new_PL_HaplotypeDepth <- anti_join(select(temp_PL_HaplotypeDepth, ID, FinalAllele, Nomenclature), PL_HaplotypeDepth, by = "ID")
-  PL_HaplotypeDepth <- bind_rows(PL_HaplotypeDepth, new_PL_HaplotypeDepth)  
+  new_PL_HaplotypeDepth$Nomenclature <- as.character(new_PL_HaplotypeDepth$Nomenclature)
+  PL_HaplotypeDepth <-  bind_rows(PL_HaplotypeDepth, new_PL_HaplotypeDepth) 
   
   new_PL_HaplotypeRAP <- anti_join(select(temp_PL_HaplotypeRAP, ID, FinalAllele, Nomenclature), PL_HaplotypeRAP, by = "ID")
+  new_PL_HaplotypeRAP$Nomenclature <- as.character(new_PL_HaplotypeRAP$Nomenclature)
   PL_HaplotypeRAP <- bind_rows(PL_HaplotypeRAP, new_PL_HaplotypeRAP)  
   
   new_PL_HaplotypeHB <- anti_join(select(temp_PL_HaplotypeHB, Locus), PL_HaplotypeHB, by = "Locus")
   PL_HaplotypeHB <- bind_rows(PL_HaplotypeHB, new_PL_HaplotypeHB)
   
   new_PL_HaplotypeSB <- anti_join(select(temp_PL_HaplotypeSB, ID, FinalAllele, Nomenclature), PL_HaplotypeSB, by = "ID")
+  new_PL_HaplotypeSB$Nomenclature <- as.character(new_PL_HaplotypeSB$Nomenclature)
   PL_HaplotypeSB <- bind_rows(PL_HaplotypeSB, new_PL_HaplotypeSB)
   
   
