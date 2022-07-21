@@ -63,3 +63,5 @@ v 0.2.2 (#NoCodeUpdate): 11/05/2021
 v 0.2.3: 06/13/2022
 	-Updated 'Find New Alleles' section to address no new data bug (Standalone only)
 	
+v 0.2.4: 07/21/2022
+	-Added reactive element to df2() to address occasional bug where Data Analysis tab active locus would not refresh when loading new sample.
