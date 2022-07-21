@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.2.3
+#Version ID: 0.2.4
 #
 #
 ##############################################
@@ -2140,6 +2140,7 @@ server <- function(input, output, session) {
   DF2 <- eventReactive({
     input$loci
     values$lcount
+    values$df
     1
     }, {
     

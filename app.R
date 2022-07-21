@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.2.2
+#Version ID: 0.2.4
 #
 #
 ##############################################
@@ -658,7 +658,7 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.2.2"
+    title = "STRait Razor Analysis v0.2.4"
   ),
 
   ##############################################
@@ -1749,6 +1749,7 @@ server <- function(input, output, session) {
   DF2 <- eventReactive({
     input$loci
     values$lcount
+    values$df
     1
     }, {
     
