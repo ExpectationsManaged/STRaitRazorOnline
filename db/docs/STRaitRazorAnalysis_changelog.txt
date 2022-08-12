@@ -8,3 +8,7 @@ v0.31 (05102021)
 	-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
 v0.4 (07232021)
 	-Added IDseek_SNP85 kit information
+v0.5 (08122021)
+	-Added IDseek Autosomal 30plex
+	-Added IDseek Y-STR 27plex
+	-Set operational thresholds of 0.9 for all loci

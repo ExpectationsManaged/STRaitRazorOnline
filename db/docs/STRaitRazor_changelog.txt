@@ -26,3 +26,12 @@ SRv3	-MainstAY_v0.1
 		
 SRv3	-IDseek_SNP85_v0.1
 		-Launch!!!
+		
+		
+SRv3	-IDSeek_SNP85_v0.2
+		-Updated motif matching string for rs354439
+
+
+SRv3	-IDseek Autosomal 30plex_v0.3
+		-IDseek Y-STR 27plex_v0.3
+		-Launch!!
