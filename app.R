@@ -1,7 +1,7 @@
 ##############################################
 #
 #
-#Version ID: 0.2.4
+#Version ID: 0.2.5
 #
 #
 ##############################################
@@ -33,7 +33,7 @@ STRaitRazorv3<- function(ActiveFASTQ, SampleName, numcores = 6, Kit = c("ForenSe
   ActiveFASTQ <- paste0('"', ActiveFASTQ, '"')
   
   #Derive sample names
-  fileType <- ifelse(substr(SampleName, nchar(SampleName)-5, nchar(SampleName)) == ".fastq", ".fastq", ".fastq.gz")
+  fileType <- ifelse(substr(SampleName, nchar(SampleName) - 5, nchar(SampleName)) == ".fastq", ".fastq", ".fastq.gz")
   
   SampleName <- if(fileType == ".fastq"){
     sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(SampleName))
@@ -658,7 +658,7 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.2.4"
+    title = "STRait Razor Analysis v0.2.5"
   ),
 
   ##############################################
@@ -781,7 +781,7 @@ ui <- dashboardPage(
                                tags$hr(),
                                div(style = "padding: 0 0 0 0",
                                    textInput("sampleID", "Sample Name*", value = ""),
-                                   "*Required for allsequences.txt"),
+                                   "*Only for allsequences.txt. Will cause crash without file extension."),
                                tags$hr(),
                                div(style = "display: inline-block; padding: 0 10px 0 0", 
                                    fileInput("fastq", "FASTQ File")), 
