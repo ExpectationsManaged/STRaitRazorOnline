@@ -13,6 +13,7 @@ STRait Razor Online (SRO) serves as the user-interface (UI) for analyzing sequen
 2)	Unzip the STRaitRazorOnline.zip file. 
 	
 	a.	Linux users: rename str8rzr_linux to str8rzr
+	
 	b.	macOS users: rename str8rzr_osX to str8rzr
 
 4)	If you don’t have R installed, install R from your mirror of choice https://www.r-project.org/
