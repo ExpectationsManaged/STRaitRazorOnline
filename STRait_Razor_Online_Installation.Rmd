@@ -39,3 +39,7 @@ install.packages("plotly")
 install.packages("data.table")
 ```
 
+
+```{r}
+install.packages("stringi")
+```
