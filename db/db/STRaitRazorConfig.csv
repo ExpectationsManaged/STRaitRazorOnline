@@ -3,6 +3,6 @@ ForenSeq DNA Signature,ForenSeqv1.26.config
 ForenSeq MainstAY,MainstAY_v0.2.config
 GlobalFilerNGSv2,GFNGSv2_v7.1.config
 PowerSeq 46GY,PowerSeqv2.31.config
-IDseek Autosomal 30plex,IDseek_Autosomal30_v0.3.config
-IDseek Y-STR 27plex,IDseek_YSTR27_v0.3.config
-IDseek SNP85,IDseek_SNP85_v0.2.config
+IDseek OmniSTR Global Auto,IDseek_Autosomal30_v0.3.config
+IDseek mYSTR Y-STR,IDseek_YSTR27_v0.3.config
+IDseek OmniSNP iiSNP,IDseek_SNP85_v0.2.config
