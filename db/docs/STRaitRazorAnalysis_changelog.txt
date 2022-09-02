@@ -12,3 +12,5 @@ v0.5 (08122021)
 	-Added IDseek Autosomal 30plex
 	-Added IDseek Y-STR 27plex
 	-Set operational thresholds of 0.9 for all loci
+v0.6 (09022022)
+	-Updated UI-facing kit names for all NimaGen products
