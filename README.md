@@ -11,6 +11,7 @@ STRait Razor Online (SRO) serves as the user-interface (UI) for analyzing sequen
 
 1)	Download or clone the repository.
 2)	Unzip the STRaitRazorOnline.zip file. 
+3)	For unix users, please update the file name under bin/*. 
 	
 	a.	Linux users: rename str8rzr_linux to str8rzr
 	
@@ -21,7 +22,7 @@ STRait Razor Online (SRO) serves as the user-interface (UI) for analyzing sequen
 6)	Once you have R and RStudio installed, a few packages need to be installed.
     #tidyverse; Biostrings; shinydashboard; rhandsontable; tcltk; plotly; stringi; data.table
     a.	Note: These packages are Imports not Suggests. So, make sure you get them all. 😊
-6)	Once all the packages are installed, open ‘app_standalone.R’ script from the same directory.
+7)	Once all the packages are installed, open ‘app_standalone.R’ script from the same directory.
 
 # Landing Page
 1.	Load the database files into the environment using the ‘Load DB’ Button.
