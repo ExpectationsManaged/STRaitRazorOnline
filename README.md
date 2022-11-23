@@ -16,6 +16,7 @@ STRait Razor Online (SRO) serves as the user-interface (UI) for analyzing sequen
 	a.	Linux users: rename str8rzr_linux to str8rzr
 	
 	b.	macOS users: First verify which processor your machine uses under Apple Menu --> About This Mac then rename either 	
+	
 			str8rzr_osX to str8rzr for Intel processors  
 			str8rzr_osX_M1 to str8rzr for ARM processors (M series)
 
