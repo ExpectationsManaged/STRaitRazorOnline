@@ -15,7 +15,7 @@ STRait Razor Online (SRO) serves as the user-interface (UI) for analyzing sequen
 	
 	a.	Linux users: rename str8rzr_linux to str8rzr
 	
-	b.	macOS users: rename str8rzr_osX to str8rzr
+	b.	macOS users: rename str8rzr_osX to str8rzr for Intel processors and str8rzr_osX_M1 to str8rzr for ARM processors (M series)
 
 4)	If you don’t have R installed, install R from your mirror of choice https://www.r-project.org/
 5)	If you don’t have RStudio installed, install RStudio Desktop from https://rstudio.com/products/rstudio/download/#download
