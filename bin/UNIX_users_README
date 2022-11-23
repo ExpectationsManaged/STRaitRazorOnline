@@ -1,4 +1,4 @@
 #Please note: for fastq processing using STRait Razor v3, please remove OS tag from str8rzr program. 
 
-#I.e., if you're using macOS, rename str8rzr_osX to str8rzr. 
+#I.e., if you're using macOS, rename str8rzr_osX to str8rzr. Additionally, if you're using a mac with an M series processor, please rename str8rzr_osX_M1 to str8rzr.
 #Conversely, if you're using linux, rename str8rzr_linux to str8rzr.
