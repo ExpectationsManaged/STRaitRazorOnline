@@ -39,5 +39,3 @@ SRv3	-ForenSeqv1.27
 		-Changed motif matching sequence for rs1336071 from CTGTT --> TTTTT to address rs540177118
 		-Reduced offset for SNPs to address deletions
 		-Updated names of Nimagen assay to Omni***
-	-OmniSNP85
-		-Reduced offset for SNPs to address deletions
