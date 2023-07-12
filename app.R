@@ -1,11 +1,18 @@
 ##############################################
 #
 #
-#Version ID: 0.2.5
+#Version ID: 0.2.7
 #
 #
 ##############################################
-#options(repos = BiocManager::repositories())
+# options(repos = BiocManager::repositories())
+# options(repos = c(CRAN = "https://cran.rstudio.com/", 
+#                   BioCsoft = "https://bioconductor.org/packages/3.12/bioc", 
+#                   BioCann = "https://bioconductor.org/packages/3.12/data/annotation", 
+#                   BioCexp = "https://bioconductor.org/packages/3.12/data/experiment",
+#                   BioCworkflows = "https://bioconductor.org/packages/3.12/workflows",
+#                   BioCbooks = "https://bioconductor.org/packages/3.12/books")
+#         )
 
 library(data.table)
 library(shinydashboard)
@@ -658,7 +665,7 @@ append_PL_Haplotypes_dbs <- function(AlleleSummary, STRaitRazorIO, LocusSummary,
 ui <- dashboardPage(
   
   dashboardHeader(
-    title = "STRait Razor Analysis v0.2.5"
+    title = "STRait Razor Analysis v0.2.7"
   ),
 
   ##############################################
@@ -744,6 +751,22 @@ ui <- dashboardPage(
                         style = "margin: 10px 10px"
                       )
                     )
+                  )
+                ),
+                
+                tags$hr(class = "thiccHr"),
+                
+                fluidRow(
+                  column(
+                    offset = 3, 
+                    width = 12,
+                    align = "left",
+                    
+                    tags$p(
+                      tags$strong("Important update v0.2.7 (07/12/2023): "),
+                      "Length-based (CE) allele nomenclature for DYS627 reduced 6 repeats (e.g., 26 --> 20) in accordance with Draft ISFG Recommendations."
+                    )
+                    
                   )
                 ),
                 
