@@ -15,7 +15,7 @@ SRv3	-PowerSeqv2.1
 		-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
 
 
-SRv3	-GlobalFilerNGSv2_v7.1
+SRv3	-GFNGSv2_v7.1
 		-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
 
 
@@ -39,3 +39,8 @@ SRv3	-ForenSeqv1.27
 		-Changed motif matching sequence for rs1336071 from CTGTT --> TTTTT to address rs540177118
 		-Reduced offset for SNPs to address deletions
 		-Updated names of Nimagen assay to Omni***
+SRv3	-GFNGSv2_v8
+		-Modified offset of D6S474 from 41 to 37
+SRv3	-IDseek mYSTR_v0.4
+			-Updated DYS627 offset from 105 to 129
+			-LB-Allele call now reported 6 repeats shorter in accordance with DRAFT ISFG guidelines
