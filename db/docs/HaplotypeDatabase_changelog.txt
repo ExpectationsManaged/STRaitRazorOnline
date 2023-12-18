@@ -29,5 +29,5 @@ v0.6.2 11/05/2021
 	-Added DYS393 flanking region information
 	
 v0.6.3 12/18/2023
-	-Updated name of NimaGen SNP assay
+	-Updated name of NimaGen SNP assay (Thanks, Maria Wróbel)
 	
