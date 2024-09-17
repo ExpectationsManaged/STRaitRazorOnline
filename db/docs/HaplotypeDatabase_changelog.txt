@@ -31,3 +31,5 @@ v0.6.2 11/05/2021
 v0.6.3 12/18/2023
 	-Updated name of NimaGen SNP assay (Thanks, Maria Wróbel)
 	
+v0.7.0 09/16/2024
+	-Standardized and updated coordinate range for DXS10135 in ForenSeq Signature Prep (i.e.,chrX:9338302-9338453 --> chrX:9338302-9338449)

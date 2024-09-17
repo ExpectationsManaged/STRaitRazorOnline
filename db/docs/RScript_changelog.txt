@@ -54,7 +54,10 @@ v 0.2: 08/19/2021
 	-Added Locus to haplotype for revComp filter to account for repeat region similarities
 
 v 0.2.1: 10/04/2021	
-	-Added hotfix for processing multi-format data alongside single-format (i.e., STRs with STR & SNP data in batch processing) credit: S.P. from VCU
+	-Added hotfix for processing multi-format data alongside single-format 
+		-STRs with STR & SNP data in batch processing
+		-credit: S.P. from VCU
+
 	
 v 0.2.2 (#NoCodeUpdate): 11/05/2021
 	-Updated MainstAY config file to include flanking region information for DYS393
@@ -69,13 +72,20 @@ v 0.2.4: 07/21/2022
 v0.2.5: 08/12/2022
 	-Modified note (online only) regarding SampleName input to address bug where sample names without file extension would not parse correctly and result in crash.
 	
-v0.2.6: 02/02/2023
+v0.2.6: 02/02/2023 (#NoCodeUpdate)
 	-Updated config files
 		GlobalFilerNGSv2: GFNGSv2_v7.1 --> GFNGSv2_v8
 		ForenSeq Signature Prep: ForenSeqv1.26 --> ForenSeqv1.27
 	-Added config files for NimaGen Omni* panels
 	
-v0.2.7: 07/12/2023
+v0.2.7: 07/12/2023 (#NoCodeUpdate)
 	-Updated config files
 		IDseek mYSTR_v0.3 --> IDseek mYSTR_v0.4
 		LB-Allele call now reported 6 repeats shorter in accordance with DRAFT ISFG guidelines
+
+v0.2.8: 09/17/2024 (#NoCodeUpdate)
+	-Updated haplotype database
+		-Standardized and updated coordinate range for DXS10135 in ForenSeq Signature Prep
+			-credit: Lucinda D. from KCL
+			-chrX:9338302-9338453 --> chrX:9338302-9338449
+	-Standardized case of chromosome throughout database to lowercase ‘c’
