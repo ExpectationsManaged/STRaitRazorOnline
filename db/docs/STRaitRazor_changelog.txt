@@ -13,6 +13,8 @@ SRv3	-PowerSeqv2.1
 		-Updated anchors and flanking region for TPOX, D12S391, and D18S51
 	-PowerSeqv2.31
 		-Changed motif matching sequence for vWA from TAGATAGACAGA-->TAGATAGA
+	-PowerSeqv2.32
+		-Modified D19S433 forward anchor TTACATGAAT -> GTTACATGAAT
 
 
 SRv3	-GFNGSv2_v7.1

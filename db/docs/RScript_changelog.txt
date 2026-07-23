@@ -89,3 +89,6 @@ v0.2.8: 09/17/2024 (#NoCodeUpdate)
 			-credit: Lucinda D. from KCL
 			-chrX:9338302-9338453 --> chrX:9338302-9338449
 	-Standardized case of chromosome throughout database to lowercase ‘c’
+	
+v0.2.9: 07/23/2026 (#NoCodeUpdate)
+	-Updated PowerSeq config from v2.31 to v2.32
